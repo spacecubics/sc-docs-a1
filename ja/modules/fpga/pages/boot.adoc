@@ -1,6 +1,6 @@
 = System Boot
 
-== NOR Flash for Configuration Memory
+== NOR Flash Memory Partition Layout
 
 SC-OBC Module A1は、FPGAの Bitstreamデータと Flight Softwareを NOR Flash Memoryに格納しています。
 
