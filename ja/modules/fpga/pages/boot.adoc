@@ -29,15 +29,15 @@ image::NOR_Flash_for_Configuration.svg[NOR Flash Memory Partition Layout]
 
 == FPGA Boot Flow
 
-FPGAの Bootには AMD 7シリーズ FPGAでサポートされている Fallback Multi Bootを活用しています。
+FPGAの Bootには AMD 7シリーズ FPGAでサポートされている Fallback MultiBootを活用しています。
 
-Multi Bootフローを以下に示します。
+MultiBootフローを以下に示します。
 
 .FPGA MultiBoot Flow
 image::MultiBoot_Flow.svg[FPGA MultiBoot Flow]
 
 TRCHによって FPGAに電源が投入されると、FPGAは NOR Flash Memoryのアドレス0から Goldenイメージを読み込みます。
-Goldenデータの読み込み中に Multi Bootの処理を見つけると、Updateイメージが格納されているアドレスにジャンプし、Updateイメージの読み込みを行います。
+Goldenデータの読み込み中に MultiBootの処理を見つけると、Updateイメージが格納されているアドレスにジャンプし、Updateイメージの読み込みを行います。
 
 読み込まれた Updateイメージが正常なデータであった場合、FPGAは Configurationを完了し Updateイメージで動作します。 読み込まれた
 Updateイメージに CRCエラーなどの問題があった場合、FPGAは Fallbackプロセスにより Goldenイメージの読み込みを行い、FPGAは Goldenイメージで動作します。
