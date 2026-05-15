@@ -15,8 +15,8 @@ Updateは、軌道上での書き換えを想定しています。
 
 以下に NOR Flash Memoryのデータパーティションを示します。
 
-.NOR Flash for Configuration Data Partition
-image::NOR_Flash_for_Configuration.svg[NOR_Flash_for_Configuration]
+.NOR Flash Memory Partition Layout
+image::NOR_Flash_for_Configuration.svg[NOR Flash Memory Partition Layout]
 
 [cols=",",options="header",]
 |===
