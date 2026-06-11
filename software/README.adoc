@@ -1,0 +1,4 @@
+= SC-OBC Module A1 Software Manual
+
+The SC-OBC Module A1 Software Manual describes the software for the SC-OBC
+Module A1. You can read the document at https://docs.spacecubics.com/.

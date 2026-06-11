@@ -1,0 +1,207 @@
+= I2C ドライバサンプル
+
+include::scobc-a1:software:partial$link-attributes.adoc[]
+
+このアプリケーションでは、SC-OBC Module A1 用の *I2C* ドライバを使って、_Development Board_ 上のセンサから温度データを取得し、コンソールに表示します。
+サンプルアプリケーションは {github-a1-sample-i2c}[I2C sample] にあります。
+
+== サンプルコードの説明
+
+=== ディレクトリ名
+
+サンプルアプリケーションのディレクトリ名や構成は自由に決められます。
+この例では、ディレクトリ名として `samples/i2c` を使用します。
+
+=== CMakeLists.txt
+
+`CMakeLists.txt` ファイルは、アプリケーションディレクトリの直下に配置する必要があります。
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(i2c-sample)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+ここでは、各アプリケーションごとに変更が必要となる箇所を説明します。
+
+ * *project*: 任意のプロジェクト名を指定します
+ * *target_sources*: ソースコードファイルを指定します
+
+=== prj.conf
+
+アプリケーションの実行に必要な追加の Kconfig パラメータを指定できます。
+この例では I2C を使用するため、`CONFIG_I2C=y` を設定する必要があります。
+また、printf で float 型の温度データを表示するため、`CONFIG_PICOLIBC_IO_FLOAT` を有効にする必要があります。
+`CONFIG_PICOLIBC_IO_FLOAT` の詳細は {zephyr-kconfig-picolibc-float}[CONFIG_PICOLIBC_IO_FLOAT] を参照してください。
+
+[source]
+----
+CONFIG_I2C=y
+CONFIG_PICOLIBC_IO_FLOAT=y
+----
+
+=== ソースコード
+
+ソースコードを以下に示します。詳細は後で個別に説明します。
+
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <zephyr/drivers/i2c.h>
+
+#define TMP175_I2C_ADDR (0x4B)
+#define TMP175_TEMP_REG (0x00)
+
+int main(void)
+{
+	int ret;
+	uint8_t data[2];
+	float temp;
+
+	const struct device *i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
+
+	if (!device_is_ready(i2c)) {
+		printf("I2C device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+
+	ret = i2c_burst_read(i2c, TMP175_I2C_ADDR, TMP175_TEMP_REG, data, ARRAY_SIZE(data));
+	if (ret < 0) {
+		printf("Failed to read from Temperature Sensor (%d)\n", ret);
+		goto end;
+	}
+
+	/*
+	 * The TMP175 temperature sensor provides temperature data with a 12-bit, and resolution
+	 * is 0.0625°C. Since the data is transmitted over I2C as 16 bits, the lower 4 bits of
+	 * the second byte should be discarded. For more details, please refer to the TMP175
+	 * datasheet.
+	 */
+	data[1] = data[1] >> 4;
+	temp = (int8_t)data[0] + (float)data[1] * 0.0625f;
+
+	printf("Temperature: %.4f [deg]\n", (double)temp);
+
+end:
+	return ret;
+}
+----
+
+==== デバイス構造体
+
+I2C ドライバ API を使うには、対応するデバイス構造体を取得する必要があります。
+デバイス構造体を取得する API はいくつかありますが、このサンプルでは `DEVICE_DT_GET` と `DT_NODELABEL` を使っています。
+`DT_NODELABEL` に指定するラベル名は、DTS ファイルで定義されているラベルと一致している必要があります。
+Development Board の温度センサに接続されている I2C デバイスは、 {github-a1-sample-dev-board-overlay}[Development Board 用 DTS オーバーレイファイル] で定義されています。
+
+Development Board では 3 つの FPGA I2C コアが利用できますが、温度センサは `i2c0` に接続されています。
+
+[source, c]
+----
+	const struct device *i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
+----
+
+[TIP]
+====
+DTS ファイルはオーバーレイによって複数のソースにまたがって定義されることがあるため、最終的にマージされた DTS を確認したくなる場合があります。このマージ済み DTS は、ビルドディレクトリ以下の次のファイルで確認できます。
+
+`~/myproject/build/zephyr/zephyr.dts`
+====
+
+==== I2C デバイスの準備完了を確認する
+
+I2C デバイスの準備ができていることを確認します。I2C デバイスが正しく初期化されていない場合は `false` を返します。
+
+[source, c]
+----
+	if (!device_is_ready(i2c)) {
+		printf("I2C device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+----
+
+==== I2C ドライバ API
+
+I2C ドライバが提供する API は I2C interface に記載されています。
+この例では、センサから 2 バイトの温度データを読み取る必要があるため、`i2c_burst_read` API を使って I2C デバイスから複数バイトを読み取ります。
+第 2 引数には I2C デバイスのスレーブアドレスを指定します。この例で使っている *TMP175* 温度センサでは、スレーブアドレスは `0x4B` です。
+第 3 引数には温度データを読み取るレジスタアドレスを指定します。
+このレジスタアドレスは TMP175 のデータシートから確認する必要があります。
+TMP175 の温度レジスタアドレスは `0x00` です。
+
+[source, c]
+----
+	ret = i2c_burst_read(i2c, TMP175_I2C_ADDR, TMP175_TEMP_REG, data, ARRAY_SIZE(data));
+----
+
+==== 温度データを計算する
+
+TMP175 の温度データは 12 ビットで表現され、分解能は `0.0625` です。そのため、コンソールへ表示する前に、生データを変換しています。
+詳細は TMP175 のデータシートを参照してください。
+
+[source, c]
+----
+	data[1] = data[1] >> 4;
+	temp = (int8_t)data[0] + (float)data[1] * 0.0625f;
+----
+
+== DIP スイッチの状態を確認する
+
+CAUTION: Development Board 上の温度センサにアクセスするには、DIP スイッチ (_SW1_) の bit7 (SCL) と bit8 (SDA) を ON にする必要があります。現在 OFF の場合は、ON に切り替えてください。
+
+== コンソールを開く
+
+SC-OBC Module A1 と PC の間をケーブルで接続し、端末でコンソールを開いてください。
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: Zephyr コンソールを使用するには、DIP スイッチ (_SW1_) の bit3 (RX) と bit4 (TX) を ON にする必要があります。現在 OFF の場合は、ON に切り替えてください。
+
+== ビルド
+
+`CMakeLists.txt` と `prj.conf` が配置されているサンプルアプリケーションのディレクトリを指定して、以下のようにビルドします。
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/i2c
+----
+
+== 書き込み
+
+次に、SC-OBC Module A1 に書き込みます。
+
+[source, console]
+----
+west flash
+----
+
+== 確認
+
+SC-OBC Module A1 の電源を入れ直すと、センサから取得した温度データがシリアルコンソールに表示されるはずです。
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+Temperature: 31.5000 [deg]
+----
+
+`tio` コンソールを終了したい場合は、まず `Ctrl + t` を押し、その後 `q` を押してください。

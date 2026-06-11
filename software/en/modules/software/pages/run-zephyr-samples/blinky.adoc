@@ -1,0 +1,30 @@
+= Blinky sample
+The first sample is *Blinky*. This application blinks an LED on your Development Board.
+
+CAUTION: For the *Blinky* sample, make sure that SW1[10] (LED control) is turned ON.
+If it is OFF, the LED will not blink.
+
+== Build
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev zephyr/samples/basic/blinky
+----
+
+This should build your first application, Blinky.
+
+These steps match the *Build the Blinky Sample* section in the Zephyr documentation.
+
+== Flash
+
+Next, we'll flash the SC-OBC Module A1:
+
+[source, console]
+----
+west flash
+----
+
+== Confirm
+After flashing, power-cycle the SC-OBC Module A1. You should see the blinking LED (_LED11_).

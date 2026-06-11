@@ -1,0 +1,38 @@
+= Hello World サンプル
+
+次は定番の *Hello World* サンプルです。Hello World を実行する前に、モジュールが PC に出力を送れるよう、シリアル接続を設定する必要があります。
+
+== コンソールを開く
+
+SC-OBC Module A1 と PC の間をケーブルで接続し、端末でコンソールを開いてください。
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: Zephyr コンソールを使用するには、DIP スイッチ (_SW1_) の bit3 (RX) と bit4 (TX) を ON にする必要があります。現在 OFF の場合は、ON に切り替えてください。
+
+== ビルド
+
+次に、別の端末を開いてサンプルをビルドします。
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev zephyr/samples/hello_world
+----
+
+== 書き込み
+
+次に、SC-OBC Module A1 に書き込みます。
+
+[source, console]
+----
+west flash
+----
+
+== 確認
+SC-OBC Module A1 の電源を入れ直すと、シリアルコンソールに Hello World の文字列が表示されるはずです。
+`tio` コンソールを終了したい場合は、まず `Ctrl + t` を押し、その後 `q` を押してください。

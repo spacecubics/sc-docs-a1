@@ -1,0 +1,16 @@
+= Develop Zephyr Applications
+
+include::partial$link-attributes.adoc[]
+
+== Introduction
+
+This section explains how to develop applications using Zephyr's *T2 topology*.
+Several sample applications are provided to help explain the source code structure, build process, and other development practices.
+
+== What is T2 topology
+
+Details of the T2 topology can be found in {zephyr-develop-t2}[T2 topology], but it has the following characteristics:
+
+ * Applications can be managed in a dedicated (custom) repository
+ * Zephyr and other projects can be managed as submodules
+ * Zephyr drivers can be managed out-of-tree in a dedicated (custom) repository

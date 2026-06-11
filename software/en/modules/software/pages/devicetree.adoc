@@ -1,0 +1,54 @@
+= Device Tree
+
+include::partial$link-attributes.adoc[]
+
+Before introducing a sample application that uses a Zephyr driver, we believe it is helpful to first explain the Device Tree, as this will aid in understanding the source code more effectively.
+
+
+== What is the Device Tree?
+
+The *Device Tree* is a data structure originally developed as part of the Open Firmware specification (IEEE 1275), where it was used to describe the hardware layout of systems such as PowerPC-based workstations and servers.
+
+This concept was later adopted and popularized in the Linux kernel, particularly for platforms like ARM and PowerPC, to enable the kernel to support multiple hardware configurations without requiring separate builds or hardcoded board-specific initialization.
+
+A Device Tree describes the physical components of a system, such as *CPUs, memory, buses, and peripheral devices*, in a structured and hierarchical format.
+This hardware description is typically written in a human-readable *Device Tree Source (DTS)* file, which is compiled into a binary *Device Tree Blob (DTB)* using the *Device Tree Compiler (DTC)*.
+The DTB is then passed to the Linux kernel at boot time to guide hardware initialization.
+
+== Device Tree in Zephyr
+
+In Zephyr, the Device Tree model was adopted to improve scalability and modularity across a wide variety of supported boards and SoCs.
+Unlike in Linux, where the DTB is loaded at runtime, Zephyr parses the DTS at build time to generate static configuration headers.
+
+This enables lightweight and efficient hardware abstraction, while still benefiting from the flexibility and reusability that Device Tree provides.
+
+* *Hardware Abstraction*
+** Describes hardware outside application code, reducing hardware-specific logic in C files.
+
+* *Portability*
+** A single source tree can support multiple hardware variants by simply switching DTS files.
+
+* *Maintainability*
+** Easier to add support for new boards or SoCs without modifying existing drivers or core logic.
+
+* *Scalability*
+** Makes it easier to manage families of devices with similar but not identical hardware configurations.
+
+== Common Usage of the Device Tree in Zephyr
+
+In Zephyr, the Device Tree is used to:
+
+* Define and configure peripherals like UART, I2C, SPI, GPIO, CAN, and more.
+* Bind drivers to hardware automatically based on compatible strings.
+* Pass hardware parameters to applications via macros generated from the DTS, such as base addresses, interrupts, and labels.
+* Manage multiple board variants using overlays.
+
+== Basic Structure
+
+A Device Tree is structured like a filesystem, with nodes and properties:
+Nodes represent hardware components, such as `/cpu`, `/memory`, and `/soc/gpio@40020000`.
+
+Properties are key-value pairs describing attributes like addresses, interrupts, clocks, and more.
+
+This introduction is a starting point.
+For deeper understanding, consider reviewing the {zephyr-build-dts}[official Zephyr device tree documentation].

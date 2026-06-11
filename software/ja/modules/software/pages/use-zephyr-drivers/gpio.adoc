@@ -1,0 +1,278 @@
+= GPIO ドライバサンプル
+
+include::scobc-a1:software:partial$link-attributes.adoc[]
+
+このアプリケーションでは *GPIO* ドライバを使って、Development Board 上の LED を点滅させます。
+サンプルアプリケーションは {github-a1-sample-blinky}[Blinky sample] にあります。
+
+== サンプルコードの説明
+
+=== ディレクトリ名
+
+サンプルアプリケーションのディレクトリ名や構成は自由に決められます。
+この例では、ディレクトリ名として `samples/blinky` を使用します。
+
+=== CMakeLists.txt
+
+`CMakeLists.txt` ファイルは、アプリケーションディレクトリの直下に配置する必要があります。
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(blinky)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+ここでは、各アプリケーションごとに変更が必要となる箇所を説明します。
+
+ * *project*: 任意のプロジェクト名を指定します
+ * *target_sources*: ソースコードファイルを指定します
+
+=== prj.conf
+
+アプリケーションの実行に必要な追加の _Kconfig_ パラメータを指定できます。
+この例では GPIO を使用するため、`CONFIG_GPIO=y` を設定する必要があります。
+
+[source]
+----
+CONFIG_GPIO=y
+----
+
+=== ソースコード
+
+ソースコードを以下に示します。詳細は後で個別に説明します。
+
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <zephyr/drivers/gpio.h>
+
+int main(void)
+{
+	int ret;
+	const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+	int led_state = 0;
+
+	if (!gpio_is_ready_dt(&led)) {
+		printf("GPIO device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+
+	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0) {
+		printf("Failed to configure a GPIO pin (%d)\n", ret);
+		goto end;
+	}
+
+	while (true) {
+		ret = gpio_pin_toggle_dt(&led);
+		if (ret < 0) {
+			printf("Failed to toggle a GPIO pin (%d)\n", ret);
+			goto end;
+		}
+
+		led_state = gpio_pin_get_dt(&led);
+		if (led_state < 0) {
+			printf("Failed to read GPIO state (%d)\n", led_state);
+			goto end;
+		}
+		printf("LED state: %s\n", led_state ? "ON" : "OFF");
+		k_sleep(K_SECONDS(1));
+	}
+
+end:
+	return ret;
+}
+----
+
+==== GPIO デバイス構造体
+
+SC-OBC Module A1 には AMD (旧 Xilinx) の AXI GPIO IP コアが搭載されており、10 本の GPIO に接続されています。
+GPIO と User IO ピンの対応は以下の通りで、`GPIO15` は Development Board 上の _LED11_ に接続されています。
+
+.GPIO pins List
+[options="header"]
+|=======================
+|User IO pin name|AMD GPIO IP core 内の GPIO 名
+|UIO2_15|GPIO15
+|UIO2_14|GPIO14
+|UIO2_13|GPIO13
+|UIO2_12|GPIO12
+|UIO2_11|GPIO11
+|UIO2_10|GPIO10
+|UIO2_09|GPIO9
+|UIO2_08|GPIO8
+|UIO2_07|GPIO7
+|UIO2_06|GPIO6
+|=======================
+
+{github-a1-sample-dev-board-overlay}[Development Board 用 DTS オーバーレイファイル] を見ると、GPIO IP コアの `GPIO15` がデバイス名 `user_led_0` として定義されていることが分かります。
+さらに、Zephyr の blinky サンプルで使われる `led0` が alias として割り当てられています。
+ただし、alias の指定は任意です。
+
+[source, dts]
+----
+	aliases {
+		led0 = &user_led_0;
+		sw0 = &user_sw_0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		user_led_0: led_0 {
+			gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+		};
+	};
+----
+
+したがって、この例では `GPIO_DT_SPEC_GET` と `DT_ALIAS` を使って GPIO デバイス構造体を取得しています。
+
+[source, c]
+----
+	const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+----
+
+==== GPIO_ACTIVE_HIGH について
+
+DTS オーバーレイでは、ユーザー LED は次のように定義されています。
+
+[source, dts]
+----
+gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+----
+
+Development Board では、ユーザー LED は N チャネル MOSFET を介して駆動されています。
+
+GPIO ピンが MOSFET ゲートを HIGH に駆動すると、MOSFET が ON になり、LED に電流が流れて点灯します。
+
+電気的には、これは次の意味になります。
+
+* GPIO = 1 (HIGH) → LED ON
+* GPIO = 0 (LOW) → LED OFF
+
+したがって、この LED は **信号が HIGH のときにアクティブ** と見なされるため、
+デバイスツリー設定では `GPIO_ACTIVE_HIGH` が使われています。
+
+ユーザー LED の駆動回路は概ね次のようになっています。
+
+image::scobc-a1:software:user-led.webp[User LED Circuit]
+
+Development Board の回路図は
+xref:dev-board:design-info.adoc[] で確認できます (回路図ドキュメント内の
+LED 制御回路を参照してください)。
+
+この設定により、Zephyr は GPIO 値を正しく解釈できるため、論理値 `1` が LED ON、
+`0` が LED OFF に対応します。
+
+==== GPIO ポートの準備完了を確認する
+
+GPIO ポートの準備ができていることを確認します。GPIO デバイスが正しく初期化されていない場合は `false` を返します。
+
+[source, c]
+----
+	if (!gpio_is_ready_dt(&led)) {
+		printf("GPIO device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+----
+
+==== GPIO ピンを設定する
+
+GPIO は初期状態 `OUTPUT_ACTIVE` として設定されます。設定に失敗した場合は負の値が返ります。
+
+[source, c]
+----
+	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0) {
+		printf("Failed to configure a GPIO pin (%d)\n", ret);
+		goto end;
+	}
+----
+
+==== GPIO ピンをトグルする
+
+GPIO ピンをトグルします。トグルに失敗した場合は負の値が返ります。
+
+[source, c]
+----
+	ret = gpio_pin_toggle_dt(&led);
+	if (ret < 0) {
+		printf("Failed to toggle a GPIO pin (%d)\n", ret);
+		goto end;
+	}
+----
+
+==== GPIO 状態を読み取る
+
+このサンプルでは、トグル後に GPIO から LED 状態を読み戻しています。
+
+`gpio_pin_get_dt` は GPIO ピンの論理レベルを読み取るために使います。
+読み取りに失敗した場合は負の値が返ります。
+
+[source, c]
+----
+led_state = gpio_pin_get_dt(&led);
+if (led_state < 0) {
+    printf("Failed to read GPIO state (%d)\n", led_state);
+    goto end;
+}
+----
+
+== コンソールを開く
+
+SC-OBC Module A1 と PC の間をケーブルで接続し、端末でコンソールを開いてください。
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: Zephyr コンソールを使用するには、DIP スイッチ (_SW1_) の bit3 (RX) と bit4 (TX) を ON にする必要があります。現在 OFF の場合は、ON に切り替えてください。
+
+== ビルド
+
+`CMakeLists.txt` と `prj.conf` が配置されているサンプルアプリケーションのディレクトリを指定して、以下のようにビルドします。
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/blinky
+----
+
+== 書き込み
+
+次に、SC-OBC Module A1 に書き込みます。
+
+[source, console]
+----
+west flash
+----
+
+== 確認
+
+SC-OBC Module A1 の電源を入れ直すと、_LED11_ が 1 秒ごとに点滅し、LED 状態がコンソールに表示されるはずです。
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+LED state: OFF
+LED state: ON
+LED state: OFF
+LED state: ON
+----
+
+`tio` コンソールを終了したい場合は、まず `Ctrl + t` を押し、その後 `q` を押してください。

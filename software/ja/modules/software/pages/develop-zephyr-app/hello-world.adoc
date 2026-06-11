@@ -1,0 +1,113 @@
+= Hello World サンプル
+
+include::scobc-a1:software:partial$link-attributes.adoc[]
+
+このセクションでは、T2 トポロジーベースのリポジトリ内で、最も単純な Hello World アプリケーションをビルドして実行する例を示します。
+サンプルアプリケーションは {github-a1-sample-helloworld}[Hello World sample] にあります。
+
+== サンプルコードの説明
+
+=== ディレクトリ名
+
+サンプルアプリケーションのディレクトリ名や構成は自由に決められます。
+この例では、ディレクトリ名として `samples/hello_world` を使用します。
+
+=== CMakeLists.txt
+
+`CMakeLists.txt` ファイルは、アプリケーションディレクトリの直下に配置する必要があります。
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(hello-world)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+ここでは、各アプリケーションごとに変更が必要となる箇所を説明します。
+
+ * *project*: 任意のプロジェクト名を指定します
+ * *target_sources*: ソースコードファイルを指定します
+
+=== prj.conf
+
+アプリケーションの実行に必要な追加の *Kconfig* パラメータを指定できます。
+この Hello World アプリケーションでは追加パラメータは不要なので、空のままで問題ありません。
+
+[source]
+----
+# nothing here
+----
+
+=== ソースコード
+
+ソースコード自体は Zephyr が提供しているサンプルコードと同等ですが、表示するパラメータを変更しています。
+Zephyr のサンプルコードでは `CONFIG_BOARD_TARGET` を表示していましたが、このサンプルではボード名 (`CONFIG_BOARD`) とリビジョン (`CONFIG_BOARD_REVISION`) を分けて表示しています。
+
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <stdio.h>
+
+int main(void)
+{
+	printf("Hello World! %s Rev %s\n", CONFIG_BOARD, CONFIG_BOARD_REVISION);
+
+	return 0;
+}
+----
+
+TIP: `CONFIG_` で始まる変数名には、Zephyr の Kconfig で指定されたパラメータが格納されています。すべての Kconfig パラメータを確認したい場合は、`~/myproject/build/zephyr/.config` ファイルを参照してください。
+
+== コンソールを開く
+
+SC-OBC Module A1 と PC の間をケーブルで接続し、端末でコンソールを開いてください。
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: Zephyr コンソールを使用するには、DIP スイッチ (_SW1_) の bit3 (RX) と bit4 (TX) を ON にする必要があります。現在 OFF の場合は、ON に切り替えてください。
+
+== ビルド
+
+`CMakeLists.txt` と `prj.conf` が配置されているサンプルアプリケーションのディレクトリを指定して、以下のようにビルドします。
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/hello_world
+----
+
+== 書き込み
+
+次に、SC-OBC Module A1 に書き込みます。
+
+[source, console]
+----
+west flash
+----
+
+== 確認
+
+SC-OBC Module A1 の電源を入れ直すと、コンソールにボード名とリビジョン付きで "Hello World" の文字列が表示されるはずです。
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+Hello World! scobc_a1 Rev 2.0.0
+----
+
+`tio` コンソールを終了したい場合は、まず `Ctrl + t` を押し、その後 `q` を押してください。

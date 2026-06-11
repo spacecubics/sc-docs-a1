@@ -1,0 +1,10 @@
+= Run Zephyr Samples
+
+Zephyr provides many so-called *sample applications*. The Zephyr documentation has a dedicated page called *Samples and Demos*.
+In this section, we'll build a few samples from Zephyr and run them on your SC-OBC Module A1.
+
+On the Samples and Demos page, you can interactively search samples. There are over 500 samples in Zephyr v4.1.
+Using the web interface is much easier than checking each sample's README.rst.
+
+If you haven't created your workspace yet, go back to the previous section and do so.
+In this section, we assume you have already set up your development environment and are ready to proceed.

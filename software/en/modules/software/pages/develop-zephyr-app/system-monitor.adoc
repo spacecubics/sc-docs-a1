@@ -1,0 +1,292 @@
+= System Monitor sample
+
+include::partial$link-attributes.adoc[]
+
+This section provides an example of building and running the *System Monitor* application within a T2 topology-based repository.
+
+== What is the System Monitor
+
+Details of the System Monitor can be found in xref:scobc-a1-ja:fpga:system_monitor.adoc[] (currently Japanese version only), but it has the following characteristics:
+
+FPGA Watchdog::
+
+The system of the SC-OBC Module A1 is monitored by the *TRCH* (Timing, Reset, Config & Health Controller), and the FPGA reports its internal status to the TRCH via the watchdog signal.
+
+NOTE: The monitoring by TRCH is disabled by default, so using the FPGA Watchdog feature is not mandatory.
+
+SEM Controller::
+
+The *SEM (Soft Error Mitigation) Controller* is a solution provided by _AMD_ for detecting and correcting errors that occur in the configuration memory of AMD FPGAs.
+The SC-OBC Module A1 FPGA integrates this functionality into the system and provides access to the SEM Controller's status through the System Monitor registers.
+
+Board Health Monitor (BHM)::
+
+The *Board Health Monitor (BHM)* is a feature that enables easy retrieval of data from sensors mounted on the SC-OBC Module A1.
+The OBC module is equipped with two current and voltage monitors and three temperature sensors.
+The BHM allows automatic data acquisition from these sensors without requiring complex *I2C* operations in software.
+
+=== System Monitor driver
+
+Currently, The following Zephyr driver APIs are provided for controlling the System Monitor in the FPGA.
+
+[[anchor-1]]
+.System Monitor Driver API List
+[options="header"]
+|=======================
+|Function|API|Summary|Parameters|Returns
+|FPGA Watchdog|`sc_kick_wdt_timer`|Toggle the FPGA Watchdog Timer||
+|SEM Controller|`sc_sem_get_error_count`|Get the SEM error count||Current SEM error count
+|Board Health Monitor (BHM)|`sc_bhm_enable`|Enable the monitoring by BHM +
+*NOTE:* Currently monitoring interval is fixed at 1 second||*0:* Success +
+*-ETIMEDOUT:* Timeout for sensor device initializing
+||`sc_bhm_disable`|Disable the monitoring by BHM||*0:* Success
+||`sc_bhm_get_obc_temp`|Get the on board temperature sensor value|*pos:* Position for sensor device +
+<Selectable parameter> +
+_SCOBC_A1_TEMP_1_ +
+_SCOBC_A1_TEMP_2_ +
+_SCOBC_A1_TEMP_3_ +
+ +
+*temp:* Temperature [degree]|*0:* Success +
+*-ENODEV:* Wrong parameter +
+*-EAGAIN:* No updated sensor values
+||`sc_bhm_get_xadc_temp`|Get the FPGA die temperature sensor value|*temp:* Temperature [degree]|*0:* Success +
+*-EAGAIN:* No updated sensor values
+||`sc_bhm_get_obc_cv`|Get the on board Current/Voltage sensor value|*pos:* Position for sensor device +
+<Selectable parameter> +
+_SCOBC_A1_1V0_SHUNT_ +
+_SCOBC_A1_1V0_BUS_ +
+_SCOBC_A1_1V8_SHUNT_ +
+_SCOBC_A1_1V8_BUS_ +
+_SCOBC_A1_3V3_SHUNT_ +
+_SCOBC_A1_3V3_BUS_ +
+_SCOBC_A1_3V3_SYSA_SHUNT_ +
+_SCOBC_A1_3V3_SYSA_BUS_ +
+_SCOBC_A1_3V3_SYSB_SHUNT_ +
+_SCOBC_A1_3V3_SYSB_BUS_ +
+_SCOBC_A1_3V3_IO_SHUNT_ +
+_SCOBC_A1_3V3_IO_BUS_ +
+ +
+*cv:* Current sensor value [mA] / Voltage sensor value [mV] |*0:* Success +
+*-EAGAIN:* No updated sensor values
+||`sc_bhm_get_xadc_cv`|Get the FPGA voltage value|*pos:* Position for sensor device +
+<Selectable parameter> +
+_SCOBC_A1_XADC_VCCINT_ +
+_SCOBC_A1_XADC_VCCAUX_ +
+_SCOBC_A1_XADC_VCCBRAM_ +
+ +
+*cv:* FPGA Voltage value [mV] |*0:* Success +
+*-EAGAIN:* No updated sensor values
+|=======================
+
+These APIs are provided as an out-of-tree driver and are available in {github-a1-sample-fpga}[System Monitor Driver].
+
+=== System Monitor sample
+
+The sample application is available in {github-a1-sample-sysmon}[System Monitor sample].
+
+== Explain the sample code
+
+=== Directory name
+
+The directory name and structure for the sample application can be chosen freely.
+In this example, we use the directory name `samples/sysmon`.
+
+=== CMakeLists.txt
+
+A `CMakeLists.txt` file must be placed directly under the application directory.
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(system-monitor)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+Here, the parts that need to be modified for each application are explained.
+
+ * `project`: Specify the desired project name
+ * `target_sources`: Specify the source code files
+
+=== prj.conf
+
+Additional Kconfig parameters required for running the application can be specified.
+In this sample, to display temperature data of type float using `printf`, it is necessary to enable `CONFIG_PICOLIBC_IO_FLOAT`.
+For more information about `CONFIG_PICOLIBC_IO_FLOAT`, refer to {zephyr-kconfig-picolibc-float}[CONFIG_PICOLIBC_IO_FLOAT].
+
+[source]
+----
+CONFIG_PICOLIBC_IO_FLOAT=y
+----
+
+=== Source code
+
+The source code is shown below. Details will be explained separately.
+
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <zephyr/kernel.h>
+#include "sc_sysmon.h"
+
+int main(void)
+{
+	int ret;
+	float temp;
+	int32_t bus;
+
+	ret = sc_bhm_enable();
+	if (ret < 0) {
+		printf("Failed to enable the Board Health Monitor: %d\n", ret);
+		goto end;
+	}
+
+	/* Wait for the first monitoring to finish */
+	k_sleep(K_SECONDS(1));
+
+	while (true) {
+		ret = sc_bhm_get_obc_temp(SCOBC_A1_TEMP_1, &temp);
+		if (ret < 0) {
+			printf("Failed to get the on Board Temperature 1: %d\n", ret);
+			goto end;
+		}
+		printf("On Board Temperature 1 : %.4f [deg]\n", (double)temp);
+
+		ret = sc_bhm_get_obc_cv(SCOBC_A1_3V3_BUS, &bus);
+		if (ret < 0) {
+			printf("Failed to get the 3V3SYS Bus voltage: %d\n", ret);
+			goto end;
+		}
+		printf("3V3SYS Bus voltage     : %d [mV]\n", bus);
+
+		k_sleep(K_SECONDS(1));
+	}
+
+end:
+	sc_bhm_disable();
+
+	return ret;
+}
+----
+
+==== Include System Monitor driver header
+
+Include the header file for the _System Monitor_ driver.
+
+[source, c]
+----
+#include "sc_sysmon.h"
+----
+
+==== Enable BHM
+
+Enable the System Monitor by FPGA _BHM_. If a negative value is returned, sensor initialization has failed.
+
+[source, c]
+----
+	ret = sc_bhm_enable();
+	if (ret < 0) {
+		printf("Failed to enable the Board Health Monitor: %d\n", ret);
+		goto end;
+	}
+----
+
+==== Wait 1 second
+
+The current System Monitor driver API does not allow customization of the monitoring interval via BHM;
+it is fixed at 1 second. Therefore, wait for 1 second until the first data collection is completed.
+
+[source, c]
+----
+	k_sleep(K_SECONDS(1));
+----
+
+==== Get the on board temperature sensor value
+
+Get the temperature data from onboard temperature sensor 1 and display it on the console.
+If a negative value is returned, it may indicate that the temperature sensor data has not been updated within the FPGA.
+If you'd like to get other values, try changing the _SCOBC_A1_TEMP_1_ to a different parameter of your choice, as referenced in <<anchor-1,Table 1. System Monitor Driver API List>>
+
+[source, c]
+----
+		ret = sc_bhm_get_obc_temp(SCOBC_A1_TEMP_1, &temp);
+		if (ret < 0) {
+			printf("Failed to get the on Board temperature 1: %d\n", ret);
+			goto end;
+		}
+		printf("On Board Temperature 1 : %.4f [deg]\n", (double)temp);
+----
+
+==== Get the on board voltage sensor value
+
+Get the _3V3SYS_ BUS voltage value data from onboard voltage sensor and display it on the console.
+If a negative value is returned, it may indicate that the voltage sensor data has not been updated within the FPGA.
+If you'd like to get other values, try changing the _SCOBC_A1_3V3_BUS_ to a different parameter of your choice, as referenced in <<anchor-1,Table 1. System Monitor Driver API List>>
+
+[source, c]
+----
+		ret = sc_bhm_get_obc_cv(SCOBC_A1_3V3_BUS, &bus);
+		if (ret < 0) {
+			printf("Failed to get the 3V3SYS Bus voltage: %d\n", ret);
+			goto end;
+		}
+		printf("3V3SYS Bus voltage     : %d [mV]\n", bus);
+----
+
+== Open console
+
+Connect the cable between your SC-OBC Module A1 and your PC, then open the console in a terminal:
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: To use the Zephyr console, bit3 (RX) and bit4 (TX) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Build
+
+Specify the sample application directory where `CMakeLists.txt` and `prj.conf` are placed, and then build as shown below.
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/sysmon
+----
+
+== Flash
+
+Next, we'll flash the SC-OBC Module A1:
+
+[source, console]
+----
+west flash
+----
+
+== Confirm
+
+Confirm that the temperature from the on board temperature sensor and the _3V3SYS_ bus voltage are displayed on the console every second.
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+On Board Temperature 1 : 28.5000 [deg]
+3V3SYS Bus voltage     : 3256 [mV]
+On Board Temperature 1 : 28.5000 [deg]
+3V3SYS Bus voltage     : 3256 [mV]
+On Board Temperature 1 : 28.5000 [deg]
+3V3SYS Bus voltage     : 3256 [mV]
+----
+
+If you want to exit the `tio` console, first press `Ctrl + t`, followed by `q`.

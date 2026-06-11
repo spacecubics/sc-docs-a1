@@ -1,0 +1,32 @@
+= Blinky サンプル
+
+最初のサンプルは *Blinky* です。このアプリケーションは Development Board 上の LED を点滅させます。
+
+CAUTION: *Blinky* サンプルでは、SW1[10] (LED control) が ON になっていることを確認してください。
+OFF になっている場合、LED は点滅しません。
+
+== ビルド
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev zephyr/samples/basic/blinky
+----
+
+これで最初のアプリケーションである Blinky がビルドされます。
+
+これらの手順は、Zephyr ドキュメントの *Build the Blinky Sample* セクションと一致しています。
+
+== 書き込み
+
+次に、SC-OBC Module A1 に書き込みます。
+
+[source, console]
+----
+west flash
+----
+
+== 確認
+
+書き込み後、SC-OBC Module A1 の電源を入れ直してください。点滅する LED (_LED11_) が見えるはずです。

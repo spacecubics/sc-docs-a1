@@ -1,0 +1,112 @@
+= Hello World sample
+
+include::partial$link-attributes.adoc[]
+
+This section provides an example of building and running the simplest Hello World application within a T2 topology-based repository.
+The sample application is available in {github-a1-sample-helloworld}[Hello World sample].
+
+== Explain the sample code
+
+=== Directory name
+
+The directory name and structure for the sample application can be chosen freely.
+In this example, we use the directory name `samples/hello_world`.
+
+=== CMakeLists.txt
+
+A `CMakeLists.txt` file must be placed directly under the application directory.
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(hello-world)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+Here, the parts that need to be modified for each application are explained.
+
+ * `project`: Specify the desired project name
+ * `target_sources`: Specify the source code files
+
+=== prj.conf
+
+Additional *Kconfig* parameters required for running the application can be specified.
+For this Hello World application, no additional parameters are required, so leaving it empty is fine.
+
+[source]
+----
+# nothing here
+----
+
+=== Source code
+
+The source code is equivalent to the sample code provided by Zephyr, but the displayed parameters have been modified.
+In the Zephyr sample code, `CONFIG_BOARD_TARGET` was displayed, but in this sample, the board name (`CONFIG_BOARD`) and the revision (`CONFIG_BOARD_REVISION`) are displayed separately.
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <stdio.h>
+
+int main(void)
+{
+	printf("Hello World! %s Rev %s\n", CONFIG_BOARD, CONFIG_BOARD_REVISION);
+
+	return 0;
+}
+----
+
+TIP: The variable names starting with `CONFIG_` store parameters specified in Zephyr's Kconfig. To know all the Kconfig parameters, you can refer to the `~/myproject/build/zephyr/.config` file.
+
+== Open console
+
+Connect the cable between your SC-OBC Module A1 and your PC, then open the console in a terminal:
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: To use the Zephyr console, bit3 (RX) and bit4 (TX) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Build
+
+Specify the sample application directory where `CMakeLists.txt` and `prj.conf` are placed, and then build as shown below.
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/hello_world
+----
+
+== Flash
+
+Next, we'll flash the SC-OBC Module A1:
+
+[source, console]
+----
+west flash
+----
+
+== Confirm
+
+After power-cycling the SC-OBC Module A1, you should see the "Hello World" string on the console along with the board name and revision.
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+Hello World! scobc_a1 Rev 2.0.0
+----
+
+If you want to exit the `tio` console, first press `Ctrl + t`, followed by `q`.

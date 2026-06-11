@@ -1,0 +1,37 @@
+= Hello World sample
+Next is the ever-popular *Hello World* sample. Before running Hello World, we need to set up the serial connection so the module can send output to your PC.
+
+== Open Console
+
+Connect the cable between your SC-OBC Module A1 and your PC, then open the console on terminal:
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: To use the Zephyr console, bit3 (RX) and bit4 (TX) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Build
+
+Then open the another terminal, and build the sample.
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev zephyr/samples/hello_world
+----
+
+== Flash
+
+Next, we'll flash the SC-OBC Module A1:
+
+[source, console]
+----
+west flash
+----
+
+== Confirm
+After power-cycle the SC-OBC Module A1, you should see the Hello World string on your serial console.
+If you want to exit the `tio` console, first press `Ctrl + t`, followed by `q`.

@@ -1,0 +1,6 @@
+= Use Zephyr Drivers
+
+== Introduction
+
+This section explains how to develop applications using Zephyr Driver.
+Several sample applications are provided to explain how to check the Device Tree and how to use drivers.

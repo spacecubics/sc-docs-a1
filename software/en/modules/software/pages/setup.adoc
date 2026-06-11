@@ -1,0 +1,203 @@
+= Setup the Development Environment
+
+include::partial$link-attributes.adoc[]
+
+== Prepare the Software
+
+This section explains how to prepare the software development environment for the SC-OBC Module A1.
+
+=== Target Platform
+
+This document targets *Ubuntu 24.04 x86_64* systems.
+
+You can use any of the following environments.
+
+* A PC with Ubuntu installed
+* A system container, such as Incus
+* A virtual machine, such as QEMU, VirtualBox, or VMware
+* Windows Subsystem for Linux (WSL) (see TIP)
+
+For Windows or macOS users, refer to {zephyr-getting-started}[the
+upstream Zephyr Getting Started Guide].
+
+[TIP]
+====
+According to {zephyr-install-dependencies}[the Install dependencies
+section on the upstream Zephyr Getting Started Guide], firmware
+flashing from WSL is not supported. However, for the SC-OBC Module A1
+Development Board, we have confirmed that flashing is possible on
+WSL. Detailed instructions for WSL user are provided in the
+<<Connect the Hardware>> section.
+====
+
+=== Install Required Dependencies
+NOTE: This section is mostly the same as Zephyr official documentation.
+
+==== Update your system
+
+[source,  console]
+----
+sudo apt update && sudo apt upgrade
+----
+
+==== Install dependencies
+
+[source,  console]
+----
+sudo apt install --no-install-recommends git cmake ninja-build gperf \
+  ccache dfu-util device-tree-compiler wget \
+  python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file \
+  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
+----
+
+=== Get Zephyr and Python Requirements
+
+==== Create your working directory
+
+[source, console]
+----
+mkdir -p ~/myproject && cd ~/myproject
+----
+
+==== Install the Python venv package
+
+[source, console]
+----
+sudo apt install python3-venv
+----
+
+==== Create a new virtual environment
+
+[source, console]
+----
+python3 -m venv ~/myproject/.venv
+----
+
+==== Activate the virtual environment
+
+[source, console]
+----
+source ~/myproject/.venv/bin/activate
+----
+
+==== Install the west
+
+[source, console]
+----
+pip install west
+----
+
+==== Clone the SC-OBC Module A1 sample repository using west
+
+[source, console]
+----
+cd ~/myproject
+west init -m https://github.com/spacecubics/scobc-a1-sample
+west update
+west zephyr-export
+----
+
+==== Install the Python requirements
+
+[source, console]
+----
+west packages pip --install
+----
+
+=== Install the Zephyr SDK
+
+[source, console]
+----
+west sdk install
+----
+
+=== Install udev rules
+
+Install the udev rules, which allow you to flash most Zephyr boards as a regular user.
+
+[source, console]
+----
+sudo cp ~/zephyr-sdk-[VERSION]/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules \
+        /etc/udev/rules.d
+sudo udevadm control --reload
+----
+
+=== Install the OpenOCD related package
+
+Install the packages required for flashing via *OpenOCD*.
+
+[source, console]
+----
+sudo apt install libftdi1 libgpiod2 libhidapi-hidraw0 libcapstone4
+----
+
+=== Install the serial console package
+
+Although there are several tools available for working with a serial console, this document uses *`tio`*.
+
+[source, console]
+----
+sudo apt install tio
+----
+
+[id="connect-hardware"]
+== Connect the Hardware
+
+Before starting development, make sure you have the following components:
+
+* ✔️ SC-OBC Module A1
+* ✔️ SC-OBC Module A1 Development Board
+* ✔️ USB Micro-B Cable
+* ✔️ AC Adapter (5V/3.0A PL03B)
+
+Refer to _SC-OBC Module A1 Development Board Product Manual_ for
+detailed instructions on how to make the connection.
+
+NOTE: This document does not require a connection between the *MPLAB PICkit* and the *Platform Cable USB II*.
+
+=== For WSL User
+CON2 on the SC-OBC Module A1 Development Board is the USB Micro-B
+DEBUG interface and is connected to the onboard FT4232H USB
+interface. It provides FPGA JTAG, CPU JTAG, FPGA UART, and TRCH UART.
+
+Use a USB cable to connect CON2 to your Windows PC, then attach it to
+WSL using {ms-wsl-usb-connect}[Microsoft’s USB connection guide].
+
+To attach the device to WSL, run `usbipd list` on Windows and
+identify the FTDI multi-port USB device for CON2 (VID:PID
+0403:6011). You need the `BUSID` from this output for the `usbipd
+bind` and `usbipd attach` command. The device name may be truncated in
+the DEVICE column, but the VID:PID (0403:6011) is sufficient to
+identify it.
+
+Example (`BUSID` may differ on your system):
+
+[source, console]
+----
+PS C:\Users\user> usbipd list
+Connected:
+BUSID  VID:PID    DEVICE                                                        STATE
+...
+9-1    0403:6011  USB Serial Converter A, USB Serial Converter B, USB Seria...  Not shared
+----
+
+Attach the device to WSL using the `BUSID` shown by `usbipd list`:
+
+[source, console]
+----
+usbipd bind --busid 9-1
+usbipd attach --wsl --busid 9-1
+----
+
+After attaching, the serial ports appear in WSL as `/dev/ttyUSB*`.
+
+NOTE: We have confirmed that the `west flash` command takes longer to complete on WSL than on native Linux.
+For example, writing 65 KB takes about 1 minute on WSL and about 20 seconds on native Linux.
+
+== Check the DIP Switch status
+
+CAUTION: To use the Zephyr console, bit3 (RX) and bit4 (TX) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Power ON the SC-OBC Module A1 Development Board
+
+Once all connections and checks have been completed, switch ON the power switch (_SW2_) on the Development Board to apply power.

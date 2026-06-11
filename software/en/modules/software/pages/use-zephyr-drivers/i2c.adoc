@@ -1,0 +1,210 @@
+= I2C Driver sample
+
+include::partial$link-attributes.adoc[]
+
+Using the *I2C* driver for the SC-OBC Module A1, this application retrieves temperature data from the sensor on the _Development Board_ and displays it on the console.
+The sample application is available in {github-a1-sample-i2c}[I2C sample].
+
+== Explain the sample code
+
+=== Directory Name
+
+The directory name and structure for the sample application can be chosen freely.
+In this example, we use the directory name `samples/i2c`.
+
+=== CMakeLists.txt
+
+A `CMakeLists.txt` file must be placed directly under the application directory.
+
+[source, cmake]
+----
+# Copyright (c) 2025 Space Cubics Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(i2c-sample)
+
+target_sources(app PRIVATE src/main.c)
+----
+
+Here, the parts that need to be modified for each application are explained.
+
+ * `project`: Specify the desired project name
+ * `target_sources`: Specify the source code files
+
+=== prj.conf
+
+Additional Kconfig parameters required for running the application can be specified.
+As this example uses I2C, it is necessary to set `CONFIG_I2C=y`.
+And, to display temperature data of type float using `printf`, it is necessary to enable `CONFIG_PICOLIBC_IO_FLOAT`.
+For more information about `CONFIG_PICOLIBC_IO_FLOAT`, refer to {zephyr-kconfig-picolibc-float}[CONFIG_PICOLIBC_IO_FLOAT].
+
+[source]
+----
+CONFIG_I2C=y
+CONFIG_PICOLIBC_IO_FLOAT=y
+----
+
+=== Source code
+
+The source code is shown below. Details will be explained separately.
+
+[source, c]
+----
+/*
+ * Copyright (c) 2025 Space Cubics Inc.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <zephyr/drivers/i2c.h>
+
+#define TMP175_I2C_ADDR (0x4B)
+#define TMP175_TEMP_REG (0x00)
+
+int main(void)
+{
+	int ret;
+	uint8_t data[2];
+	float temp;
+
+	const struct device *i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
+
+	if (!device_is_ready(i2c)) {
+		printf("I2C device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+
+	ret = i2c_burst_read(i2c, TMP175_I2C_ADDR, TMP175_TEMP_REG, data, ARRAY_SIZE(data));
+	if (ret < 0) {
+		printf("Failed to read from Temperature Sensor (%d)\n", ret);
+		goto end;
+	}
+
+	/*
+	 * The TMP175 temperature sensor provides temperature data with a 12-bit, and resolution
+	 * is 0.0625°C. Since the data is transmitted over I2C as 16 bits, the lower 4 bits of
+	 * the second byte should be discarded. For more details, please refer to the TMP175
+	 * datasheet.
+	 */
+	data[1] = data[1] >> 4;
+	temp = (int8_t)data[0] + (float)data[1] * 0.0625f;
+
+	printf("Temperature: %.4f [deg]\n", (double)temp);
+
+end:
+	return ret;
+}
+----
+
+==== Device structure
+
+To use the I2C driver API, it is necessary to obtain the corresponding device structure.
+There are several APIs available for retrieving a device structure, but in this sample, `DEVICE_DT_GET` and `DT_NODELABEL` are used.
+The label name specified in `DT_NODELABEL` must match the label defined in the DTS file.
+The I2C device connected to the temperature sensor on the Development Board is defined in {github-a1-sample-dev-board-overlay}[DTS overlay file for Development Board].
+
+Although three FPGA I2C cores are available on the Development Board, the temperature sensor is connected to `i2c0`.
+
+[source, c]
+----
+	const struct device *i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
+----
+
+[TIP]
+====
+Because the DTS file may be defined across multiple sources via
+overlays, you may want to inspect the final merged DTS.  This merged
+DTS is available in the following file under the build directory.
+
+`~/myproject/build/zephyr/zephyr.dts`
+====
+
+==== Validate that I2C device is ready
+
+Validate that I2C device is ready. If the I2C device is not properly initialized, it will return `false`.
+
+[source, c]
+----
+	if (!device_is_ready(i2c)) {
+		printf("I2C device is not ready\n");
+		ret = -ENODEV;
+		goto end;
+	}
+----
+
+==== I2C driver API
+
+The APIs provided by the I2C driver are documented in the I2C interface.
+In this example, it is necessary to read 2 bytes of temperature data from the sensor, so the `i2c_burst_read` API is used to perform a multi-byte read from the I2C device.
+The second argument specifies the slave address of the I2C device. For the *TMP175* temperature sensor used in this example, the slave address is set to `0x4B`.
+The third argument specifies the register address from which the temperature data will be read.
+This register address must be obtained from the TMP175 datasheet.
+For TMP175, the temperature register address is `0x00`.
+
+[source, c]
+----
+	ret = i2c_burst_read(i2c, TMP175_I2C_ADDR, TMP175_TEMP_REG, data, ARRAY_SIZE(data));
+----
+
+==== Calculate temperature data
+
+The TMP175 temperature data is represented in 12 bits, and its resolution is `0.0625`. Therefore, the raw value is converted before being printed to the console.
+For more details, please refer to the TMP175 datasheet.
+
+[source, c]
+----
+	data[1] = data[1] >> 4;
+	temp = (int8_t)data[0] + (float)data[1] * 0.0625f;
+----
+
+== Check the DIP Switch status
+
+CAUTION: To access the temperature sensor on the Development Board, bit7 (SCL) and bit8 (SDA) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Open console
+
+Connect the cable between your SC-OBC Module A1 and your PC, then open the console in a terminal:
+
+[source, console]
+----
+tio /dev/ttyUSB2
+----
+
+CAUTION: To use the Zephyr console, bit3 (RX) and bit4 (TX) of DIP Switch (_SW1_) must be turned ON. If they are currently OFF, please switch them ON.
+
+== Build
+
+Specify the sample application directory where `CMakeLists.txt` and `prj.conf` are placed, and then build as shown below.
+
+[source, console]
+----
+cd ~/myproject
+source .venv/bin/activate
+west build -p always -b scobc_a1 --shield scobc_a1_dev scobc-a1-sample/samples/i2c
+----
+
+== Flash
+
+Next, we'll flash the SC-OBC Module A1:
+
+[source, console]
+----
+west flash
+----
+
+== Confirm
+
+After power-cycling the SC-OBC Module A1, you should see the temperature data retrieved from the sensor is displayed on the serial console.
+
+[source, console]
+----
+*** Booting Zephyr OS build 60e8eb54f7ae ***
+Temperature: 31.5000 [deg]
+----
+
+
+If you want to exit the `tio` console, first press `Ctrl + t`, followed by `q`.

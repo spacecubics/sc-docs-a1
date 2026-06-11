@@ -1,0 +1,12 @@
+:github-a1-sample-blinky: https://github.com/spacecubics/scobc-a1-sample/tree/main/samples/blinky
+:github-a1-sample-dev-board-overlay: https://github.com/spacecubics/scobc-a1-sample/blob/main/boards/shields/scobc_a1_dev/scobc_a1_dev.overlay
+:github-a1-sample-fpga: https://github.com/spacecubics/scobc-a1-sample/tree/main/drivers/misc/sc_fpga
+:github-a1-sample-helloworld: https://github.com/spacecubics/scobc-a1-sample/tree/main/samples/hello_world
+:github-a1-sample-i2c: https://github.com/spacecubics/scobc-a1-sample/tree/main/samples/i2c
+:github-a1-sample-sysmon: https://github.com/spacecubics/scobc-a1-sample/tree/main/samples/sysmon
+:ms-wsl-usb-connect: https://learn.microsoft.com/en-us/windows/wsl/connect-usb
+:zephyr-build-dts: https://docs.zephyrproject.org/latest/build/dts/index.html
+:zephyr-develop-t2: https://docs.zephyrproject.org/latest/develop/west/workspaces.html#t2-star-topology-application-is-the-manifest-repository
+:zephyr-getting-started: https://docs.zephyrproject.org/latest/develop/getting_started/index.html
+:zephyr-install-dependencies: https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies
+:zephyr-kconfig-picolibc-float: https://docs.zephyrproject.org/latest/kconfig.html#CONFIG_PICOLIBC_IO_FLOAT

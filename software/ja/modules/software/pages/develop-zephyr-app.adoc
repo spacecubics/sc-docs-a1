@@ -1,0 +1,12 @@
+= Develop Zephyr Applications
+
+include::scobc-a1:software:partial$link-attributes.adoc[]
+
+このセクションでは、Zephyr の *T2 トポロジー* を使ったアプリケーション開発方法を説明します。
+ソースコードの構成、ビルド方法、その他の開発上の実践を説明するために、いくつかのサンプルアプリケーションを用意しています。
+
+T2 トポロジーの詳細は {zephyr-develop-t2}[T2 topology] にありますが、主に次の特徴があります。
+
+ * アプリケーションを専用の (カスタム) リポジトリで管理できる
+ * Zephyr やその他のプロジェクトをサブモジュールとして管理できる
+ * Zephyr ドライバを専用の (カスタム) リポジトリで out-of-tree 管理できる
