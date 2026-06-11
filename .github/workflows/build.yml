@@ -15,35 +15,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          path: a1-product
+          path: sc-docs-a1
 
       - name: Checkout sc-docs
         uses: actions/checkout@v6
         with:
           repository: spacecubics/sc-docs
           path: sc-docs
-
-      - name: Checkout A1 Software Manual
-        uses: actions/checkout@v6
-        with:
-          repository: spacecubics/scobc-a1-software-manual
-          path: a1-software
-
-      - name: Checkout A1 FPGA Manual
-        uses: actions/checkout@v6
-        with:
-          repository: spacecubics/scobc-a1-fpga-technical-reference-manual
-          path: a1-fpga
-
-      - name: Install Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install tree
-
-      - name: Test dirs
-        run: |
-          pwd
-          tree
 
       - name: Install Node.js
         uses: actions/setup-node@v6

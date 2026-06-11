@@ -3,3 +3,6 @@ regex-style-search=true
 
 [ignore-body-lines]
 regex=^(?:(?:Signed-off|Acked|Co-Authored|Reported|Tested)-by: |\[\d+\]: https:\/\/)
+
+[title-match-regex]
+regex=^(([a-z0-9._-]+: )+)?[A-Z].*
