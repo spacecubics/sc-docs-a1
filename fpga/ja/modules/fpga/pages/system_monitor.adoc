@@ -1,0 +1,1154 @@
+= System Monitor
+
+System Monitorは、SC-OBC-A1 FPGAのシステムを監視するためのモジュールです。
+
+このモジュールは以下の機能を実装しています。
+
+* FPGA Watchdog機能
+* Hardware Monitor機能
+* SEM Controller機能
+* Board Health Monitor機能
+
+== FPGA Watchdog
+
+SC-OBC-A1 FPGAのシステムは、TRCHによって監視されます。 SC-OBC-A1 FPGAは System Monitorが収集した FPGA内部の状態を Watchdog signal (FPGA_WATCHDOG)を通じて TRCHに伝えます。
+TRCHは FPGAが出力する FPGA_WATCHDOG信号が定期的にトグルしている間、FPGAが健全に動作していると判断します。
+
+== SEM Controller
+
+SEM (Soft Error Mitigation) Controllerは、AMD (旧 Xilinx) FPGAのコンフィギュレーションメモリで発生したソフトエラーの検出 及び訂正を行う、AMD (旧 Xilinx) から提供されるソリューションです。
+SC-OBC-A1 FPGAはこの機能をシステムに組み込み、SEM Controllerの状態を System Monitorのレジスタから読み出す機能を持っています。
+
+CPUが正常に動作している場合でも、SEM Controllerが訂正不能なエラーを検出した場合や、SEM Controller自体に障害が発生した場合には、SC-OBC-A1 FPGAに深刻な障害が発生する可能性があります。
+そのため、深刻な障害が発生する前に再起動することにより、システムを健全な状態に保つ事が可能です。
+
+SC-OBC-A1 FPGAは以下の構成でSEM Controllerを実装しています。
+
+[cols=",,",options="header",]
+[cols="4,3,13",options="header",]
+|===
+|項目                |設定       |説明
+|エラー訂正/修復方法 |拡張修復   |ECCおよび CRCアルゴリズムに基づく訂正を行います。1ビットのエラーまたは、隣接する 2ビットのエラーを訂正します。
+|エラー分類機能      |未サポート |検出したすべてのエラーがエッセンシャルビットか非エッセンシャルビットかの分類はできません。全てエッセンシャルビットと判断します。
+|エラーモニタ機能    |未サポート |SEM Controllerが持つモニターインタフェースは実装していません。System Monitorのレジスタから簡易的なステータスを参照することにより、SEM Controllerを管理します。
+|エラー挿入機能      |サポート   |ソフトウェアのテストのため、エラーを強制的に挿入する機能を持っています。
+|===
+
+SEM Controllerの仕様詳細については、AMD (旧 Xilinx) ドキュメント「PG036: LogicCORE IP Soft Error Mitigation Controller v4.1製品ガイド」を参照してください。
+
+=== SEM Controller Interrupt
+
+SEM Controllerは 4つの要因の割り込みを出力します。 SEM Controllerの割り込みは、System Monitor Interrupt Registerのビット 11:8にマッピングされています。
+
+* SEM Error Correction Interrupt
+
+SEM Controllerがコンフィギュレーションメモリのエラーを検知し、訂正・修復した事を示す通知ビットです。
+この割り込みは、SEM Controllerが正常にコンフィギュレーションメモリのエラーを訂正し修復した事を示すものであり、システムは健全に保たれている事を示します。
+この割り込みがセットされる時、SEM Error Correction Count Registerの値が +1されます。
+
+* SEM Uncorrectable Interrupt
+
+SEM Controllerがコンフィギュレーションメモリに訂正不能なエラーを検出した事を示す通知ビットです。
+この割り込みが発生した時、コンフィギュレーションメモリには障害が発生しています。
+エッセンシャルビットに障害が起きた場合、FPGAの回路が不正な状態となっている可能性があります。
+そのため、このエラーが発生した場合はシステムを再起動する事を推奨します。
+
+* SEM Halted Interrupt
+
+SEM Controllerが Haltした事を示す通知ビットです。
+この割り込みは何らかの異常により、SEM Controllerに自体に障害が起き、動作を停止した事を示します。
+このエラーが発生した後は、SEM Controllerによるコンフィギュレーションメモリのエラー検出と訂正は行われません。
+そのため、このエラーが発生した場合はシステムを再起動する事を推奨します。
+
+* SEM Heartbeat Timeout Interrupt
+
+SEM Controllerの Heartbeat信号が停止した事を示す通知ビットです。
+この割り込みは何らかの異常により、SEM Controllerに障害が起き、Heartbeat信号を出力できなくなった事を示します。
+このエラーが発生した後は、SEM Controllerが正常に動作していない可能性があります。
+そのため、このエラーが発生した場合はシステムを再起動する事を推奨します。
+
+== Board Health Monitor (BHM)
+
+Board Health Monitor (BHM)は、OBC Module上に搭載するセンサーから簡単にデータを取得するための機能です。
+
+OBC Moduleには、2つの Current Voltage Monitorと 3つの 温度センサーを搭載しています。
+これらのセンサーは I2C規格のバスで SC-OBC-A1 FPGAと接続されています。
+BHMはセンサーにアクセスするためのシーケンサーが実装されており、センサーからのデータをレジスタに格納します。
+これにより、ソフトウェアによる煩雑な処理を実行しなくても、センサーからデータを取得する事ができます。
+
+BHMが、センサーからデータを取得するタイミングは General Purpose Timerの Hardware Interrupt Timerによって決定します。
+Hardware Interrupt Timerを Hardware Schedulerとして動作させる事で、BHMに定期的にセンサーデータの取得トリガを生成します。
+BHMは、センサーのデータ取得トリガを検出したタイミングで、センサーに対する I2Cアクセスを行い データを取得します。
+
+尚、Current Voltage Monitorは Texas Instruments社の INA3221-Q1、温度センサーは Texas Instruments社の TMP175-Q1を搭載しています。
+センサーやセンサーからの取得データの詳細は、各データのデータシートを参照してください。
+
+=== BHMの I2Cアクセス
+
+BHMは 3つの I2Cアクセスを行うことができます。
+
+センサーデバイスの初期化
+
+* レジスタアクセスによりセンサーの初期化要求を発行すると、センサーの初期化のための I2Cアクセスを行います
+* センサーの初期化を行うアドレスや初期化データは、RTL設計時に Verilogのパラメータで設定する事ができます
+
+センサーデータの取得
+
+* Hardware Schedulerからのトリガを検出すると、センサーからデータを取得するための I2Cアクセスを行います
+* Current Voltage Monitorからのデータ取得は、General Purpose Timerの Hardware Interrupt Timer Output Compare Channel 2が発生するトリガで開始されます
+* 温度センサーからのデータ取得は、General Purpose Timerの Hardware Interrupt Timer Output Compare Channel 3が発生するトリガで開始されます
+
+ソフトウェア指示による I2Cアクセス
+
+* ランタイムでセンサーの設定を変更したり、センサーが出力した Alertをクリアする目的で、簡単なレジスタアクセスで任意の I2Cアクセスを行います
+
+=== センサー構成
+
+BHMに接続するセンサーと、BHMによって取得されるセンサーデータ 及びセンサーデータが格納されるレジスタアドレスの一覧を以下に示します
+
+[cols=",,,,",options="header",]
+|===
+     |センサー                          |センサーデバイス |センサーレジスタアドレス |センサーデータ            |BHMレジスタアドレスオフセット
+.6+<.<|Current Voltage Monitor 1  .6+<.<|INA3221-Q1       |0x01                     |VDD_1V0 Shunt Voltage     |0x2020
+                                                   |0x02                     |VDD_1V0 Bus Voltage       |0x2024
+                                                   |0x03                     |VDD_1V8 Shunt Voltage     |0x2028
+                                                   |0x04                     |VDD_1V8 Bus Voltage       |0x202C
+                                                   |0x05                     |VDD_3V3 Shunt Voltage     |0x2030
+                                                   |0x06                     |VDD_3V3 Bus Voltage       |0x2034
+.6+<.<|Current Voltage Monitor 2  .6+<.<|INA3221-Q1       |0x01                     |VDD_3V3SYSA Shunt Voltage |0x2038
+                                                   |0x02                     |VDD_3V3SYSA Bus Voltage   |0x203C
+                                                   |0x03                     |VDD_3V3SYSB Shunt Voltage |0x2040
+                                                   |0x04                     |VDD_3V3SYSB Bus Voltage   |0x2044
+                                                   |0x05                     |VDD_3V3IO Shunt Voltage   |0x2048
+                                                   |0x06                     |VDD_3V3IO Bus Voltage     |0x204C
+     |Temperature Sensor 1              |TMP175-Q1        |0x00                     |Temperature               |0x2050
+     |Temperature Sensor 2              |TMP175-Q1        |0x00                     |Temperature               |0x2054
+     |Temperature Sensor 3              |TMP175-Q1        |0x00                     |Temperature               |0x2058
+|===
+
+=== センサーデータ自動取得のためのレジスタアクセス手順
+
+この章では、SC-OBC-A1 FPGAのシステムが起動してから、BHMによって Current Voltage Monitorと温度センサーから、センサーデータを自動取得させるためのレジスタアクセス手順を説明します。
+
+BHMによるセンサーデータの自動取得を開始するためには、a) BHMの初期化、b)センサーデバイスの初期化、c) General Purpose Timerの初期化、d)BHMサービス開始 の処理を行う必要があります。
+本手順では、General Purpose Timerの初期化も行います。
+General Purpose Timerのレジスタ仕様の詳細は「General Purpose Timer」の章を参照してください。
+
+.センサーデータ自動取得のためのレジスタアクセス手順
+image::bhm_initilize.png[bhm_initilize]
+
+. BHM Prescaler Registerに I2Cの通信速度を設定します
+I2Cの通信速度は、必ず Standard-mode (100Kb/s)以下にしてください Standard-mode以上の速度にすると、正しく通信できない場合があります。
+BHM Prescaler Registerの初期値は、システムクロックが 48 MHzの場合に 100 Kb/sとなる 0x77に設定されています。
+システムクロックが 48 MHzの場合は、特に理由が無い限り設定値を 0x77のままにしてください。
+. BHM Retry Count Registerに I2C通信のリトライ回数を設定します
+BHMは、I2C通信を行ったときにエラーを検出すると、このレジスタで設定した回数の自動リトライを行います。
+BHM Retry Count Registerの初期値は リトライ回数 "2"に設定されています。
+. BHM Interrupt Enable Registerに 割り込みの有効化設定をします本手順を実行するためには、最低限 Bit 0と Bit 13:8を設定してください。
+. BHM Initialization Access Control Registerの書き込み、センサーデバイスの書き込みを開始します
+初期化を行う対象の INITENビットと BHM_INITREQビットに "1"をセットする事でデバイスの初期化が開始されます。
+. SYSMON_BHMINT割り込みにより、センサーデバイスの初期化完了を検出します
+SYSMON_BHMINT割り込み発生時、BHM Interrupt Status Registerの BHM_INITACCENDビットが "1"にセットされているとき、デバイスの初期化が完了したと判断できます。
+この時、BHM Interrupt Status Registerの Bit 12:8の I2CERRビットがセットされていない事を確認してください。
+I2CERRビットがセットされている場合、手順 2で設定した I2C通信のリトライ回数を超えるエラーが発生した事を示します。
+. BHM Interrupt Status Registerの BHM_INTACCENDビットに "1"を書き込み、割り込みをクリアしてください
+. Hardware Interrupt Timer Control Registerに、Hardware Interruptの発生方式を設定します
+レジスタの設定は、必ず次の通りに設定してください。
+GPTMR_HITRUNMDビットを Restartモード (設定値 0b0)、GPTMR_HITOPMD2/GPTMR_HITOPMD3フィールド パルス割り込み出力 (設定値 0b10)。
+GPTMR_HITOPMD2の設定は Current Voltage Monitorからのデータを取得するために設定する必要があり、GPTMR_HITOPMD3の設定は温度センサーからデータを取得するために設定する必要があります。
+. Hardware Interrupt Timer Prescaler Registerに、Hardware Interrupt Timerのプリスケーラー設定を行います Hardware Interrupt Timerの動作クロックは 24 MHzです。 設定方法の詳細は Hardware Interrupt Timerのレジスタ設定を参照してください。
+. Hardware Interrupt Timer Output Compare Register 1 に、Hardware Interrupt Timerの周期を設定します
+. Hardware Interrupt Timer Output Compare Register 2 に、Current Voltage Monitorのセンサーデータ取得タイミングを設定します
+. Hardware Interrupt Timer Output Compare Register 3 に、温度センサーのセンサーデータ取得タイミングを設定します
+. BHM Access Control Registerの MONIENビットを "1"にセットし、各センサーからのデータの自動取得を有効化します
+. Timer Enable Control Registerの HITENビットを"1"に設定し、Hardware Interrupt Timerの動作を開始します
+
+12、13の処理が完了すると、BHMは Hardware Interrupt Timerが生成するタイミングで、センサーに対し I2C通信を行いセンサーデータを取得します。
+BHMがセンサーデバイスから取得したデータは、Monitor Registerに格納されます。
+
+以下に Hardware Interrupt Timerの周期を 1秒とし、Current Voltage Monitorの読み出しタイミングを 100 ms、温度センサーの読み出しタイミングを 200 msとした場合のレジスタ設定を示します。
+
+.Hardware Interrupt Timerを 1秒周期にした時の、センサーデータ自動受信の例
+image::bhm_hardware_interrupt_timing.png[bhm_hardware_interrupt_timing]
+
+* 手順 8で行う Hardware Interrupt Timer Prescaler Registerに 0x5DBFを設定する事で Hardware Interrupt Timerのカウントアップ時間を 1msとする
+* 手順 9で行う Hardware Interrupt Timer Output Compare Register 1に 0x3E8を設定する事で Hardware Interrupt Timerの周期を 1秒とする
+* 手順 10で行う Hardware Interrupt Timer Output Compare Register 2に 0x64を設定する事で、Current Voltage Monitorのデータ読み出し開始タイミングを 100 msとする
+* 手順 11で行う Hardware Interrupt Timer Output Compare Register 3に 0xC8を設定する事で、温度センサーのデータ読み出し開始タイミングを 200 msとする
+
+Current Voltage Monitorのデータ読み出しは 6 ms、温度センサーの読み出しは 1.5 msかかります。
+そのため、Hardware Interrupt Timerの周期は 7.5 msより大きな時間に設定してください。
+また、各センサーデバイスには AD変換時間があり、短い周期でデータを読み出した場合には、まだセンサーデバイスのデータ更新が行われていない場合があります。
+
+詳細は各センサーデバイスのデータシートを参照してください。
+
+=== センサーデバイスの初期化のためのレジスタアクセス手順
+
+この章では、BHMによるセンサーデバイスの初期化のためのレジスタアクセス手順について説明します。
+
+BHMは、ソフトウェアからのレジスタアクセスにより、センサーデバイスの初期化要求を受けると、I2Cアクセスを行いセンサーデバイスに初期設定値を書き込みます。
+センサーデバイスの初期化のためのレジスタアクセス手順を以下に示します。
+
+.センサーデバイスの初期化のためのレジスタアクセス手順
+image::bhm_sensor_init.png[bhm_sensor_init]
+
+. BHM Initialization Access Control Registerの初期化を行うセンサーデバイスに対応する Initialization Enableと INIT_REQビットをセットします。
+INIT_REQビットをセットされると、Initialization Enableがセットされたセンサーデバイスへの初期化のための I2Cアクセスが開始されます。
+. BHMによるセンサーデバイスへの書き込みアクセスの完了は、SYSMON_BHMINT割り込みのアサートにより検出する事ができます。
+割り込みを検出したとき、BHM Interrupt Status Registerの BHM_INITACCENDビットがセットされている場合、センサーデバイスの初期化のための I2Cアクセスが完了した事を示します。
+BHM_INITACCENDがセットされたときは、I2CERRビットの確認を行い I2Cアクセスにエラーが発生したかどうかを確認します。
+I2CERRビットがセットされていないとき、そのセンサーデバイスのアクセスは正常に完了したと判断できます。
+. Board Health Interrupt Status RegisterのBHM_SWACCENDビットに "1"を書き込むと、BHM_SWACCENDビットをクリアする事ができます。
+
+以下に、初期設定を行うセンサーデバイス、デバイスアドレス、初期設定値の一覧を示します。
+尚、初期設定値は、RTL設計において Verilog Parameterで変更する事ができます。
+
+.デバイス初期設定一覧 (default)
+[cols="3,4,2,11",options="header",]
+|===
+|Device                   |Address                              |初期設定値 |Description
+|Current Voltage Monitor1 |0x07: Channel-1 Critical-Alert Limit |0x2710     |VDD_1V0の Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor1 |0x08: Channel-1 Warning-Alert Limit  |0x1770     |VDD_1V0の Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor1 |0x09: Channel-2 Critical-Alert Limit |0x2710     |VDD_1V8の Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor1 |0x0A: Channel-2 Warning-Alert Limit  |0x1770     |VDD_1V8の Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor1 |0x0B: Channel-3 Critical-Alert Limit |0x2710     |VDD_3V3の Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor1 |0x0C: Channel-3 Warning-Alert Limit  |0x1770     |VDD_3V3の Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor1 |0x0F: Mask/Enable                    |0x0C00     |Current Voltage Monitor 1の Critical-Alertピン、Warning-Alertピンのラッチの有効化を設定
+|Current Voltage Monitor2 |0x07: Channel-1 Critical-Alert Limit |0x2710     |VDD_3V3SYSAの Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor2 |0x08: Channel-1 Warning-Alert Limit  |0x1770     |VDD_3V3SYSAの Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor2 |0x09: Channel-2 Critical-Alert Limit |0x2710     |VDD_3V3SYSBの Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor2 |0x0A: Channel-2 Warning-Alert Limit  |0x1770     |VDD_3V3SYSBの Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor2 |0x0B: Channel-3 Critical-Alert Limit |0x2710     |VDD_3V3IOの Critical-Alertをシャント電圧: 50mV (シャント電流: 5A)に設定
+|Current Voltage Monitor2 |0x0C: Channel-3 Warning-Alert Limit  |0x1770     |VDD_3V3IOの Warning-Alertをシャント電圧: 30mV (シャント電流: 3A)に設定
+|Current Voltage Monitor2 |0x0F: Mask/Enable                    |0x0C00     |Current Voltage Monitor 2の Critical-Alertピン、Warning-Alertピンのラッチの有効化を設定
+|Temperature Sensor1      |0x01: Configuration register         |0x0200     |Temperature Sensor 1の ALERTピンの動作を Interrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される)
+|Temperature Sensor1      |0x02: TLOW register                  |0x4B00     |Temperature Sensor 1の TLOWを 75℃に設定
+|Temperature Sensor1      |0x03: THIGH register                 |0x5000     |Temperature Sensor 1の THIGHを 80℃に設定
+|Temperature Sensor2      |0x01: Configuration register         |0x0200     |Temperature Sensor 2の ALERTピンの動作を Interrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される)
+|Temperature Sensor2      |0x02: TLOW register                  |0x4B00     |Temperature Sensor 2の TLOWを 75℃に設定
+|Temperature Sensor2      |0x03: THIGH register                 |0x5000     |Temperature Sensor 2の THIGHを 80℃に設定
+|Temperature Sensor3      |0x01: Configuration register         |0x0200     |Temperature Sensor 3の ALERTピンの動作を Interrupt Modeに設定 (1Byteのレジスタの為、MSB Byteの書き込み値に設定される)
+|Temperature Sensor3      |0x02: TLOW register                  |0x4B00     |Temperature Sensor 3の TLOWを 75℃に設定
+|Temperature Sensor3      |0x03: THIGH register                 |0x5000     |Temperature Sensor 3の THIGHを 80℃に設定
+|===
+
+センサーデバイスの初期化のための I2Cアクセスの実行中に、BHM Retry Count Setting Registerに設定されている回数の I2Cエラーが発生した場合、BHM Interrupt Status Registerの対応するセンサーデバイスの I2CERRビットがセットされます。
+また、I2Cエラーが発生したデバイスへの以降の初期化設定はスキップされます。
+ひとつのセンサーデバイスに I2Cエラーが起きても、I2CERRビットがセットされていないセンサーの初期化アクセスは正常に完了しています。
+
+=== ソフトウェア指示によるセンサーデバイスへの I2Cアクセス
+
+この章では、SC-OBC-A1 FPGAに実装されるセンサーデバイス (Current Voltage Monitor 及び 温度センサー)に、ソフトウェアの指示によりアクセスする方法を説明します。
+
+BHMは、RTLに指定する Verilog parameterの値に従い、センサーデバイスのレジスタを初期化する機能を持っています。
+この機能とは別に、センサーデバイスのレジスタに対し 任意の I2Cアクセスを行いたい場合は、ソフトウェア指示によるセンサーデバイスへのアクセスを行います。
+
+ソフトウェア指示によりセンサーデバイスのレジスタにデータを書き込むためのレジスタアクセスフローを以下に示します。
+
+.ソフトウェア指示によるセンサーデバイスのレジスタ書き込みフロー
+image::bhm_sw_write_seq.png[bhm_sw_write_seq]
+
+. センサーデバイスに書き込む 2 Byteのデータを BHM Software Access Write Data Registerに書き込みます。
+このレジスタに書き込まれたデータがそのままデバイスのレジスタに書き込まれます。
+. レジスタ書き込みを行うセンサーデバイスとレジスタアドレスを設定するため、BHM Software Access Control Registerの BHM_SWDEVSELと BHM_SWREGADRを書き込みます。
+同時に、センサーデバイスへの書き込みアクセスを行うため、BHM_SWRWSELに "0" (Write Access)を設定し、BHM_SWACCREQに "1"をセットします。
+BHM_SWACCREQビットが "1"にセットされた事をきっかけに、BHMはセンサーデバイスへの I2Cアクセスを開始します。
+. BHMによるセンサーデバイスへの書き込みアクセスの完了は、SYSMON_BHMINT割り込みのアサートにより検出する事ができます。
+割り込みを検出したとき、BHM Interrupt Status Registerの BHM_SWACCENDビットがセットされている場合、ソフトウェア指示によるセンサーデバイスへの I2Cアクセスが正常に完了した事を示します。
+. Board Health Interrupt Status RegisterのBHM_SWACCENDビットに "1"を書き込むと、BHM_SWACCENDビットをクリアする事ができます。
+ソフトウェア指示によるセンサーデバイスのレジスタ書き込み中に、I2Cアクセスのエラーが発生した場合は、BHM Interrupt Status Registerの BHM_SWACCERRビットに "1"にセットされ、センサーデバイスへの I2Cアクセスは停止します。
+ソフトウェア指示によりセンサーデバイスのレジスタからデータを読み出すためのレジスタアクセスフローを以下に示します。
+
+.ソフトウェア指示によるセンサーデバイスからのレジスタ読み出しフロー
+image::bhm_sw_read_seq.png[bhm_sw_read_seq]
+
+. レジスタ読み出しを行うセンサーデバイスとレジスタアドレスを設定するため、BHM Software Access Control Registerの BHM_SWDEVSELと BHM_SWREGADRを書き込みます。
+同時に、センサーデバイスからの読み出しアクセスを行うため、BHM_SWRWSELに "1" (Read Access)を設定し、BHM_SWACCREQに "1"をセットします。
+BHM_SWACCREQビットが "1"にセットされた事をきっかけに、BHMはセンサーデバイスへの I2Cアクセスを開始します。
+. BHMによるセンサーデバイスへの書き込みアクセスの完了は、SYSMON_BHMINT割り込みのアサートにより検出する事ができます。
+割り込みを検出したとき、BHM Interrupt Status Registerの BHM_SWACCENDビットがセットされている場合、ソフトウェア指示によるセンサーデバイスへの I2Cアクセスが正常に完了した事を示します。
+. Board Health Interrupt Status RegisterのBHM_SWACCENDビットに "1"を書き込むと、BHM_SWACCENDビットをクリアする事ができます。
+. BHMがセンサーデバイスのレジスタから読み出したデータは、BHM Software Access Read Data Registerに格納されます。 BHM Software Access Read Data Registerを読み出す事で、センサーデバイスから読み出したデータを取得できます。
+ソフトウェア指示によるセンサーデバイスのレジスタ読み出し中に、I2Cアクセスのエラーが発生した場合は、BHM Interrupt Status Registerの BHM_SWACCERRビットが "1"にセットされ、センサーデバイスへの I2Cアクセスは停止します。
+
+== レジスタ詳細
+
+System Monitorは、Base Address 0x4F04_0000に配置されています。
+
+.System Monitorメモリマップ
+[cols="4,4,10,2",options="header",]
+|===
+|Offset          |Symbol             |Register                                       |Initial
+|0x0000          |SYSMON_WDOGCTRL    |Watchdog Control Register                      |0x00075A5A
+|0x0010          |SYSMON_WDOGSIVAL   |Watchdog Signal Interval Register              |0x00B71AFF
+|0x0030          |SYSMON_INTSTATUS   |System Monitor Interrupt Status Register       |0x00000000
+|0x0034          |SYSMON_INTENABLE   |System Monitor Interrupt Enable Register       |0x00000000
+|0x0040          |SYSMON_SEMSTATE    |SEM Controller State Register                  |0x00000000
+|0x0044          |SYSMON_SEMECCOUNT  |SEM Error Correction Count Register            |0x00000000
+|0x0048          |SYSMON_SEMHTIMEOUT |SEM Heartbeat Timeout Register                 |0x000000FF
+|0x0050          |SYSMON_SEMEINJECT1 |SEM Error Injection Command Register 1         |0x00000000
+|0x0054          |SYSMON_SEMEINJECT2 |SEM Error Injection Command Register 2         |0x00000000
+|0x1000 - 0x1FFF |SYSMON_XADCREG     |XADC Register Window                           |-
+|0x2000          |BHM_INICTLR        |BHM Initialization Access Control Register     |0x0000001F
+|0x2004          |BHM_ACCCTLR        |BHM Access Control Register                    |0x00000000
+|0x2010          |BHM_ISR            |BHM Interrupt Status Register                  |0x00000000
+|0x2014          |BHM_IER            |BHM Interrupt Enable Register                  |0x00000000
+|0x2020          |BHM_1V0SNTVR       |BHM VDD_1V0 Shunt Voltage Monitor Register     |0x80000000
+|0x2024          |BHM_1V0BUSVR       |BHM VDD_1V0 Bus Voltage Monitor Register       |0x80000000
+|0x2028          |BHM_1V8SNTVR       |BHM VDD_1V8 Shunt Voltage Monitor Register     |0x80000000
+|0x202C          |BHM_1V8BUSVR       |BHM VDD_1V8 Bus Voltage Monitor Register       |0x80000000
+|0x2030          |BHM_3V3SNTVR       |BHM VDD_3V3 Shunt Voltage Monitor Register     |0x80000000
+|0x2034          |BHM_3V3BUSVR       |BHM VDD_3V3 Bus Voltage Monitor Register       |0x80000000
+|0x2038          |BHM_3V3SYSASNTVR   |BHM VDD_3V3SYSA Shunt Voltage Monitor Register |0x80000000
+|0x203C          |BHM_3V3SYSABUSVR   |BHM VDD_3V3SYSA Bus Voltage Monitor Register   |0x80000000
+|0x2040          |BHM_3V3SYSBSNTVR   |BHM VDD_3V3SYSB Shunt Voltage Monitor Register |0x80000000
+|0x2044          |BHM_3V3SYSBBUSVR   |BHM VDD_3V3SYSB Bus Voltage Monitor Register   |0x80000000
+|0x2048          |BHM_3V3IOSNTVR     |BHM VDD_3V3IO Shunt Voltage Monitor Register   |0x80000000
+|0x204C          |BHM_3V3IOBUSVR     |BHM VDD_3V3IO Bus Voltage Monitor Register     |0x80000000
+|0x2050          |BHM_TEMP1R         |BHM Temperature1 Monitor Register              |0x80000000
+|0x2054          |BHM_TEMP2R         |BHM Temperature2 Monitor Register              |0x80000000
+|0x2058          |BHM_TEMP3R         |BHM Health Temperature3 Monitor Register       |0x80000000
+|0x2060          |BHM_SWCTLR         |BHM Software Access Control Register           |0x00000000
+|0x2064          |BHM_SWWDTR         |BHM Software Access Write Data Register        |0x00000000
+|0x2068          |BHM_SWRDTR         |BHM Software Access Read Data Register         |0x00000000
+|0x2080          |BHM_PSCR           |BHM Prescale Setting Register                  |0x00000077
+|0x2084          |BHM_ACCCNTR        |BHM Retry Count Setting Register               |0x00000002
+|0x20C0          |BHM_ASR            |BHM Access Status Register                     |0x00000000
+|0xF000          |SYSMON_VER         |System Monitor IP Version Register             |-
+|===
+
+=== Watchdog Control Register (Offset 0x0000)
+
+Watchdog Control Registerは、SC-OBC-A1 FPGAの Watchdogの制御を行うためのレジスタです。
+本レジスタにより Watchdog Counterの満了時間の設定や、Software Watchdog Timerをリロードする事ができます。
+
+システムの起動後、SC-OBC-A1 FPGAの Watchdog Timer回路は、TRCHに対し Watchdog信号のトグルを開始します。
+ソフトウェアは Software Watcdog Timeフィールドに設定されている Software Watchdog Timerの満了時間以内に、Watchdog Service Registerにアクセスし Software Watchdog Timerをリロードする必要があります。
+Software Watchdog Timerが満了すると、SC-OBC-A1 FPGAの Watchdog Timer回路は、TRCHに対する Watchdog信号のトグルを停止し、TRCHに対しソフトウェアに異常が起きた事を通知します。
+
+初期状態では、Software Watchdog Timerのの満了時間は 128 [sec] に設定されています。
+ソフトウェアが、定期的にSoftware Watchdog Timerをリロードできる状態となった後、Software Watchdog Timeフィールドを適切な値に変更する事で異常検知のタイミングを設定する事ができます。
+
+.Watchdog Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol      |Field                      |Description |R/W
+|31:19 |-           |Reserved                   |Reserved    |-
+|18:16 |SW_WDOGTIME |Software Watchdog Time     |Software Watchdog Timerの満了時間を設定するためのフィールドです。 +
+0x0: 1 [sec] +
+0x1: 2 [sec] +
+0x2: 4 [sec] +
+0x3: 8 [sec] +
+0x4: 16 [sec] +
+0x5: 32 [sec] +
+0x6: 64 [sec] +
+0x7: 128 [sec] |R/W
+|15:0  |WDOG_WSR    |Watchdog Service Register |Software Watchdog Timerをリロードするためのフィールドです。
+0x5A5Aと 0xA5A5を交互に書き込む事で、Software Watchdog Timerをリロードする事ができます。
+このフィールドを読み出すと、Software Watchdog Timerをリロードするために次に書き込む値(0x5A5A または 0xA5A5)を読み出す事ができます。 |R/W
+|===
+
+=== Watchdog Signal Interval Register (Offset 0x0010)
+
+Watchdog Signal Interval Registerは、FPGA_WATCHDOG信号のトグル間隔を設定するためのレジスタです。
+
+FPGA_WATCHDOGが Highレベル または Lowレベルとなるクロックサイクル数を規定します。
+Watchdog Signalのカウンタは 24 MHzで動作するため、以下の式で設定値を求める事ができます。
+
+[stem]
+++++
+WDOG\_SIVAL設定値 = \frac{FPGA\_WATCHDOG\ High/Lowレベル幅 [s]}{\frac{1}{24 \times 10^{6}}} - 1
+++++
+
+.Watchdig Signal Interval Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol     |Field                    |Description                                                                                                     |R/W
+|31:24 |-          |Reserved                 |Reserved                                                                                                        |-
+|23:0  |WDOG_SIVAL |Watchdog Signal Interval |Watchdog Signalの Highレベルまたは Lowレベルの幅を設定するフィールドです。初期値は 500 [ms]に設定されています。 |R/W
+|===
+
+=== Clock Monitor Register (Offset 0x0020)
+
+Clock Monitor Registerは、SC-OBC-A1 FPGAのクロック状態を示すレジスタです。
+
+.Clock Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol      |Field                       |Description                                                     |R/W
+|31:17 |-           |Reserved                    |Reserved                                                        |-
+|16    |PLL_LOCK    |PLL Lock Status             |SC-OBC-A1 FPGAの PLLの状態を示します。 +
+0: PLL Unlock +
+1: PLL LOCK |RO
+|15:13 |-           |Reserved |Reserved          |-
+|12    |UCLK2_STS   |User Clock 2 Status         |User Clock 2のクロックの動作状態を示します。 +
+0: クロック停止中 +
+1: クロック動作中 |RO
+|11    |UCLK1_STS   |User Clock 1 Status         |User Clock 1のクロックの動作状態を示します。 +
+0: クロック停止中 +
+1: クロック動作中 |RO
+|10    |ULPICLK_STS |ULPI Reference Clock Status |ULPI Reference Clockのクロックの動作状態を示します。 +
+0: クロック停止中 +
+1: クロック動作中 |RO
+|9     |MAXICLK_STS |Main AXI Clock Status       |Main AXI Clockのクロックの動作状態を示します。 +
+0: クロック停止中 +
+1: クロック動作中 |RO
+|8     |SYSCLK_STS  |System Clock Status         |System Clockのクロックの動作状態を示します。 +
+0: クロック停止中 +
+1: クロック動作中 |RO
+|7:2   |-           |Reserved                    |Reserved |-
+|1:0   |OSC_CLKEN   |OSC Clock Enable            |SC-OBC-A1 FPGAの入力クロック (源発信クロック)の Enable信号の状態を示します。 +
+bit 0: Oscillator 1の状態を示します。 +
+bit 1: Oscillator 2の状態を示します。 +
+これらのビットが "1"の時、クロックは Enableです。 |RO
+|===
+
+=== Hardware Status 1/2 Register (Offset 0x0024/Offset 0x0028)
+
+Hardware Status Registerは、SC-OBC-A1 FPGAのハードウェアの状態を示すレジスタです。
+
+このレジスタは、ソフトウェアから見ると、Scratchpadとして動作します。
+Loaderによって、ハードウェアの健全性が確認されるとこのレジスタに書き込みを行います。
+Flight Softwareは、起動時にこのレジスタを読み出す事で、ハードウェアの健全性を知る事ができます。
+
+このレジスタは、SC-OBC-A1 FPGAの Configuration後に一度だけ初期化されます。 Code Memory Select Registerの ITCMENビットがセットされた時に発行されるシステムリセットでは、このレジスタはクリアされません。
+このレジスタのフィールドの詳細は未定です。
+
+.Hardware Status 1 Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol        |Field             |Description |R/W
+|31:0 |HWARE_STATUS1 |Hardware Status 1 |T.B.D.      |R/W
+|===
+
+.Hardware Status 2 Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol        |Field             |Description |R/W
+|31:0 |HWARE_STATUS2 |Hardware Status 2 |T.B.D.      |R/W
+|===
+
+=== System Monitor Interrupt Status Register (Offset 0x0030)
+
+System Monitor Interrupt Status Registerは、System Monitorの割り込みステータスレジスタです。
+それぞれのビットは"1"をセットすると、割り込みをクリアする事ができます。
+
+SEM Controllerの異常を示すビット (bit 9、bit 10、bit 11)は、"1"をセットすると割り込みをクリアする事はできますが、SEM Controllerの異常が取り除かれるわけではないため、システムの再起動を行う必要があります。
+
+.System Monitor Interrupt Status Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol           |Field                           |Description |R/W
+|31:5 |-                |Reserved                        |Reserved |-
+|11   |SEM_HTIMEOUTINT  |SEM Heartbeat Timeout Interrupt |SEM Controllerの Heartbeat信号が Timeoutしたときにセットされる割り込みビットです。
+SEM Controllerが出力する Heartbeat信号が SEM Heartbeat Timeout Registerで設定するクロック数アサートされなかった時セットされます。 |R/WC
+|10   |SEM_HALTEDINT    |SEM Halted Interrupt            |SEM Controllerが Fatal Errorにより Haltしたときにセットされる割り込みビットです。
+SEM Current State Registerの全ての有効ビットがセットされたとき、この割り込みがセットされます。|R/WC
+|9    |SEM_UNCORRECTINT |SEM Uncorrectable Interrupt     |SEM Controllerが訂正不能なエラーを検出したときセットされる割り込みビットです。
+この割り込みがセットされたとき、SEM Controllerは IDLEステートに遷移し コンフィギュレーションメモリの監視を停止します。 |R/WC
+|8    |SEM_ECORRECTINT  |SEM Error Correction Interrupt  |SEM Controllerがエラーを訂正したときセットされる割り込みビットです。 |R/WC
+|7    |PLL_UNLOCKINT    |PLL Unlock Interrupt            |PLLが異常により Unlockしたときセットされる割り込みビットです。 |R/WC
+|6:5  |-                |Reserved                        |Reserved |-
+|4    |UCLK2_STOPINT    |User Clock 2 Stop Interrupt     |User Clock 2が異常により停止したときセットされる割り込みビットです。 |R/WC
+|3    |UCLK1_STOPINT    |User Clock 1 Stop Interrupt     |User Clock 1が異常により停止したときセットされる割り込みビットです。 |R/WC
+|2    |ULPICLK_STOPINT  |ULPI Clock Stop Interrupt       |ULPI Clockが異常により停止したときセットされる割り込みビットです。 |R/WC
+|1    |MAXICLK_STOPINT  |Main AXI Clock Stop Interrupt   |Main AXI Clockが異常により停止したときセットされる割り込みビットです。 |R/WC
+|0    |SYSCLK_STOPINT   |System Clock Stop Interrupt     |System Clockが異常により停止したときセットされる割り込みビットです。 |R/WC
+|===
+
+=== System Monitor Interrupt Enable Register (Offset 0x0034)
+
+System Monitor Interrupt Enable Registerは、System Monitorが監視するイベントを割り込み出力信号に通知するか設定するためのレジスタです。
+
+.System Monitor Interrupt Enable Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol           |Field                                  |Description                                                                          |R/W
+|31:5 |-                |Reserved                               |Reserved                                                                             |-
+|11   |SEM_HTIMEOUTENB  |SEM Heartbeat Timeout Interrupt Enable |SEM_HTIMEOUTINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。  |R/W
+|10   |SEM_HALTEDENB    |SEM Halted Interrupt Enable            |SEM_HALTEDINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。    |R/W
+|9    |SEM_UNCORRECTENB |SEM Uncorrectable Interrupt Enable     |SEM_UNCORRECTINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。 |R/W
+|8    |SEM_ECORRECTENB  |SEM Error Correction Interrupt Enable  |SEM_ECORRECTINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。  |R/W
+|7    |PLL_UNLOCKENB    |PLL Unlock Interrupt Enable            |PLL_UNLOCKINTイベントが発生した時、割り込み信号を発生させるかどうか設定します。      |R/W
+|6:5  |-                |Reserved                               |Reserved                                                                             |-
+|4    |UCLK2_STOPENB    |User Clock 2 Stop Interrupt Enable     |UCLK2_STOPINTイベントが発生した時、割り込み信号を発生させるかどうか設定します。      |R/W
+|3    |UCLK1_STOPENB    |User Clock 1 Stop Interrupt Enable     |UCLK1_STOPINTイベントが発生した時、割り込み信号を発生させるかどうか設定します。      |R/W
+|2    |ULPICLK_STOPENB  |ULPI Clock Stop Interrupt Enable       |ULPICLK_STOPINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。  |R/W
+|1    |MAXICLK_STOPENB  |Main AXI Clock Stop Interrupt Enable   |MAXICLK_STOPINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。  |R/W
+|0    |SYSCLK_STOPENB   |System Clock Stop Interrupt Enable     |SYSCLK_STOPINTイベントが発生した時、割り込み信号を発生させるかどうかを設定します。   |R/W
+|===
+
+=== SEM Controller State Register (0ffset 0x0040)
+
+SEM Controller State Registerは SC-OBC-A1 FPGAに実装する、SEM Controllerのステートを示すレジスタです。
+
+セットされているビットを確認する事により、ソフトウェアは SEM Controllerがどのような状況にあるか把握する事ができます。
+また、Currentステートと Previousステートを比較する事によって、ステートの遷移を把握する事ができます。
+
+Currentステート、Previousステートの全てのビットが Highにセットされているとき、SEM Controllerに重大なエラーが起きた事を示します。
+また、全てのビットが Lowにクリアされているとき、SEM Controllerは IDLE状態である事を示します。
+
+このレジスタはPower On Resetのみでリセットされ、システムリセットでは初期化が行われません。
+そのため、Bootloaderから Flight Softwareに切り替わるタイミングでもリセットされません。
+一方、System Monitor Interrupt Status Registerはシステムリセットにより割り込みイベントがクリアされます。
+そのため、Flight Softwareが起動したときに、このレジスタの値を読み出し、SEMが正常動作している事を確認してください。
+
+.SEM Controller State Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol           |Field                             |Description                                                          |R/W
+|31:21 |-                |Reserved                          |Reserved                                                             |-
+|20    |SEM_PREINJECT    |SEM Previous Injection State      |SEM Controllerの前のステートがエラー挿入ステートだった事を示します。 |RO
+|19    |SEM_PRECLASSIFIC |SEM Previous Classification State |SEM Controllerの前のステートが分類ステートだった事を示します。       |RO
+|18    |SEM_PRECORRECT   |SEM Previous Correction State     |SEM Controllerの前のステートが訂正ステートだった事を示します。       |RO
+|17    |SEM_PREOBSERVE   |SEM Previous Oveservation State   |SEM Controllerの前のステートが監視ステートだった事を示します。       |RO
+|16    |SEM_PREINIT      |SEM Previous Initialize State      |SEM Controllerの前のステートが初期化ステートだった事を示します。     |RO
+|15:5  |-                |Reserved                          |Reserved                                                             |-
+|4     |SEM_CURINJECT    |SEM Current Error Injection State |SEM Controllerがエラー挿入ステートである事を示します。このビットのみが Highにセットされているとき、SEM Controllerはエラー挿入ステートです。 |RO
+|3     |SEM_CURCLASSIFIC |SEM Current Classification State  |SEM Controllerが分類ステートである事を示します。このビットのみが Highにセットされているとき、SEM Controllerは分類ステートです。 |RO
+|2     |SEM_CURCORRECT   |SEM Current Correction State      |SEM Controllerが訂正ステートである事を示します。このビットのみが Highにセットされているとき、SEM Controllerは訂正ステートです。 |RO
+|1     |SEM_CUROBSERVE   |SEM Current Oveservation State    |SEM Controllerが監視ステートである事を示します。このビットのみが Highにセットされているとき、SEM Controllerは監視ステートです。 |RO
+|0     |SEM_CURINIT      |SEM Current Initialize State       |SEM Controllerが初期化ステートである事を示します。このビットのみが Highにセットされているとき、SEM Controllerは初期化ステートです。
+このビットは FPGAが動作を開始した後に 1度だけ発生する初期化の間アクティブになります。 |RO
+|===
+
+=== SEM Error Correction Count Register (Offset 0x0044)
+
+SEM Error Correction Count Registerは、SEM Controllerが行ったエラー訂正数をカウントします。
+
+このレジスタはPower On Resetのみでリセットされ、システムリセットでは初期化が行われません。
+そのため、Bootloaderから Flight Softwareに切り替わる時にはリセットされず、SEM Controllerのエラーは累積のエラーを示します。
+
+.SEM Error Correction Count Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol    |Field                |Description                                                                                                                        |R/W
+|31:16 |-         |Reserved             |Reserved                                                                                                                           |-
+|15:0  |SEMCCOUNT |SEM Correction Count |SEM Controllerが訂正したエラーの数を保持します。このレジスタに書き込みを行うと、書き込む値によらずカウント値が 0にクリアされます。 |R/WC
+|===
+
+=== SEM Heartbeat Timeout Register (Offset 0x0048)
+
+SEM Heartbeat Timeout Registeは SEM Controllerが出力する Heartbeat信号の Timeout時間を設定するレジスタです。
+AMD (旧 Xilinx) の SEM Controller (v4.1)では、Heartbeat信号のアサート間隔は 150クロックと規定されており、本レジスタの値は修正する必要はありません。
+
+このレジスタはPower On Resetのみでリセットされ、システムリセットでは初期化が行われません。
+そのため、Bootloaderから Flight Softwareに切り替わる時にはリセットされません。
+
+.SEM Heartbeat Timeout Registerビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol   |Field                   |Description |R/W
+|31:8 |-        |Reserved                |Reserved    |-
+|7:0  |HTIMEOUT |Heartbeat Timeout Value |SEM Controllerが出力する Heartbeat信号の受信Timeout時間を設定します。
+SEM Controllerのステートが、監視ステートのとき このレジスタに設定されるカウント値まで Heartbeat信号がアサートされないとき、SEM Heartbeat Timeout割り込みを発生させます。 |R/W
+|===
+
+=== SEM Error Injection Command Register 1/2 (Offset 0x0050/0x0054)
+
+SEM Error Injection Command Register は、SEM Controllerのエラー挿入機能を使用するためのレジスタです。
+このレジスタを使用し、SEM Controllerのエラー挿入インターフェースにコマンドを入力する事により、エラー挿入機能を使用する事ができます。
+
+このレジスタは試験専用レジスタであり、FPGAインプリ時のコンフィギュレーションにより、無効化する事ができます。
+
+SEM Controller へのコマンド送信は、SEM Error Injection Command Register 2 への書き込みをきっかけに行われます。
+そのため、SEM Error Injection Command Register 1 への書き込みは、必ず SEM Error Injection Command Register 2 の書き込み前に行ってください。
+
+このレジスタはPower On Resetのみでリセットされ、システムリセットでは初期化が行われません。
+そのため、Bootloaderから Flight Softwareに切り替わる時にはリセットされません。
+
+.SEM Error Injection Command Register 1ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol   |Field             |Description                                                                                                                                        |R/W
+|31:0 |EINJECT1 |Error Injection 1 |SEM Controllerのエラー挿入インターフェースにコマンドを入力するためのフィールドです。このフィールドにはエラー挿入コマンドの Bit 31:0 を設定します。 |R/W
+|===
+
+.SEM Error Injection Command Register 2ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol   |Field             |Description |R/W
+|31:8 |-        |Reserved          |Reserved    |-
+|7:0  |EINJECT2 |Error Injection 2 |SEM Controllerのエラー挿入インターフェースにコマンドを入力するためのフィールドです。
+このフィールドにはエラー挿入コマンドの Bit 39:32 を設定します。
+このフィールドをセットすると SEM Error Injection 1 の設定値と合わせ SEM Controllerにエラーコマンドが送信されます。 |R/W
+|===
+
+=== XADC Register Window (Offset 0x1000-1FFF)
+
+XADC Register Fieldは、SC-OBC-A1 FPGAに搭載されている AMD (旧 Xilinx) の ADCモジュールとのアクセスを行うための領域です。
+
+XADCは AMD (旧 Xilinx) 7シリーズ FPGAに搭載される ADCモジュールです。
+XADCには 12 bit、毎秒 1 Mサンプルの ADCとオンチップセンサーが含まれています。
+SC-OBC-A1 FPGAでは、XADCのレジスタを読み出す事により、FPGAのダイの温度と入力電源の監視を行う事ができます。
+
+XADCの詳細は AMD (旧 Xilinx) のドキュメント (UG480: 7シリーズ FPGAおよび Zynq-7000 All Programmable SoC XADCデュアル 12ビット 1 MPSPSアナログ-デジタルコンバーター ユーザーズガイド)を参照してください。
+
+XADCのレジスタにアクセスするためには、ベースアドレスを 0x4F041000とし Bit 11:4に 対象となるXADCのレジスタアドレスを設定する事で行えます。
+Status Registerにアクセスするためのレジスタアドレスを以下に示します。
+
+[cols=",,",options="header",]
+|===
+|Offset |Name               |Description
+|0x1000 |Temperature Status |オンチップ温度センサーの測定結果が格納されます。Bit 15:4の 12 Bitが温度センサーの伝達関数に対応します。
+|0x1010 |VCCINT Status      |オンチップVCCINT電圧モニターの測定結果が格納されます。Bit 15:4の 12 Bitが電圧センサーの伝達関数に対応します。
+|0x1020 |VCCAUX Status      |オンチップVCCAUX電圧モニターの測定結果が格納されます。Bit 15:4の 12 Bitが電圧センサーの伝達関数に対応します。
+|0x1060 |VCCBRAM Status     |オンチップVCCBRAM電圧モニターの測定結果が格納されます。Bit 15:4の 12 Bitが電圧センサーの伝達関数に対応します。
+|0x1200 |Max Temperature    |電源投入または最後に XADCをリセットしてから記録された最大温度測定値が格納されます。
+|0x1210 |Max VCCINT         |電源投入または最後に XADCをリセットしてから記録された最大VCCINT測定値が格納されます。
+|0x1220 |Max VCCAUX         |電源投入または最後に XADCをリセットしてから記録された最大VCCAUX測定値が格納されます。
+|0x1230 |Max VCCBRAM        |電源投入または最後に XADCをリセットしてから記録された最大VCCBRAM測定値が格納されます。
+|0x1240 |Min Temperature    |電源投入または最後に XADCをリセットしてから記録された最小温度測定値が格納されます。
+|0x1250 |Min VCCINT         |電源投入または最後に XADCをリセットしてから記録された最小VCCINT測定値が格納されます。
+|0x1260 |Min VCCAUX         |電源投入または最後に XADCをリセットしてから記録された最小VCCAUX測定値が格納されます。
+|0x1270 |Min VCCBRAM        |電源投入または最後に XADCをリセットしてから記録された最小VCCBRAM測定値が格納されます。
+|===
+
+System Monitorの XADC Register Windowからは、XADCのすべてのレジスタ領域にアクセスする事ができますが、アラーム機能は現状実装されておりません。
+
+=== BHM Initialization Access Control Register (Offset 0x2000)
+
+BHM Initialization Access Control Registerは、OBC Moduleに実装するセンサーの初期化に関する制御を行うためのレジスタです。
+Board Health Monitorは、このレジスタを制御することによって、センサーに対し初期化のためのレジスタアクセスを実行します。
+
+Initialization Requestビットを "1"にセットすると、Initialization Enableビットが "1"にセットされているセンサーに初期化を行います。
+Initialization RequestビットとInitialization Enableビットは、同時にセットすることができます。
+
+センサーに設定する初期値は、RTL設計時にVerilogパラメータで指定する事ができます。
+
+.BHM Initialization Access Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                                      |Description |R/W
+|31:17 |-               |Reserved                                   |Reserved |-
+|16    |BHM_INITREQ     |Initialization Request                     |OBC Moduleに実装するセンサーの初期化を開始するためのビットです。
+このビットに"1"をセットすると、初期化を開始します。Initialization Enableがセットされている全てのセンサーの初期化が完了すると、このビットは自動的に "0"にクリアされます。 |R/W
+|15:5  |-               |Reserved                                   |Reserved |-
+|4     |BHM_TEMP3INITEN |Temperature Sensor 3 Initialization Enable |Temperature Sensor 3 の初期化を有効化するためのビットです。 +
+0: Temperature Sensor 3 Initialization Disable +
+1: Temperature Sensor3 Initialization Enable |R/W
+|3     |BHM_TEMP2INITEN |Temperature Sensor 2 Initialization Enable |Temperature Sensor 2 の初期化を有効化するためのビットです。 +
+0: Temperature Sensor 2 Initialization Disable +
+1: Temperature Sensor2 Initialization Enable |R/W
+|2     |BHM_TEMP1INITEN |Temperature Sensor 1 Initialization Enable |Temperature Sensor 1 の初期化を有効化するためのビットです。 +
+0: Temperature Sensor 1 Initialization Disable +
+1: Temperature Sensor1 Initialization Enable |R/W
+|1     |BHM_CVM2INITEN  |Current Voltage Monitor 2 Initialization Enable |Current Voltage Monitor 2 の初期化を有効化するためのビットです。 +
+0: Current Voltage Monitor 2 Initialization Disable +
+1: Current Voltage Monitor2 Initialization Enable |R/W
+|0     |BHM_CVM1INITEN  |Current Voltage Monitor 1 Initialization Enable |Current Voltage Monitor 1 の初期化を有効化するためのビットです。 +
+0: Current Voltage Monitor 1 Initialization Disable  +
+1: Current Voltage Monitor1 Initialization Enable |R/W
+|===
+
+=== BHM Access Control Register (Offset 0x2004)
+
+BHM Access Control Registerは、OBC Moduleに実装するセンサーからのセンサーデータの自動読み出しに関する設定を行うためのレジスタです。
+
+対象のセンサーの Monitor Enableビットを "1"にセットしておくと、GPTMRモジュールに実装する Hardware Schedulerから タイミングパルスを受信するたびに、対応するセンサーからデータを読み出します。
+
+.BHM Access Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol          |Field                                   |Description |R/W
+|31:5 |-               |Reserved                                |Reserved |-
+|4    |BHM_TEMP3MONIEN |Temperature Sensor 3 Monitor Enable     |Temperature Sensor 3からセンサーデータを読み出すための設定を行うビットです。 このビットが "1"にセットされている時に Hardware Schedulerからタイミングパルスを受信すると、Temperature Sensor 3から温度データを読み出します。BHM_TEMP3I2CERR 割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 +
+0: Temperature Sensor 3 Monitor Disable +
+1: Temperature Sensor 3 Monitoring Enable |R/W
+|3    |BHM_TEMP2MONIEN |Temperature Sensor 2 Monitor Enable     |Temperature Sensor 2からセンサーデータを読み出すための設定を行うビットです。 このビットが "1"にセットされている時に  Schedulerからタイミングパルスを受信すると、Temperature Sensor 2から温度データを読み出します。BHM_TEMP2I2CERR 割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 +
+0: Temperature Sensor 2 Monitor Disable +
+1: Temperature Sensor 2 Monitoring Enable |R/W
+|2    |BHM_TEMP1MONIEN |Temperature Sensor 1 Monitor Enable     |Temperature Sensor 1からセンサーデータを読み出すための設定を行うビットです。このビットが "1"にセットされている時に Hardware Schedulerからタイミングパルスを受信すると、Temperature Sensor 1から温度データを読み出します。BHM_TEMP1I2CERR 割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 +
+0: Temperature Sensor 1 Monitor Disable +
+1: Temperature Sensor 1 Monitoring Enable |R/W
+|1    |BHM_CVM2MONIEN |Current Voltage Monitor 2 Monitor Enable |Current Voltage Monitor 2からセンサーデータを読み出すための設定を行うビットです。このビットが "1"にセットされている時に Hardware Schedulerからタイミングパルスを受信すると、Current Voltage Monitor 2からシャント電圧とバス電圧データを読み出します。BHM_CVM2I2CERR 割り込みが発生した場合、このビットは自動的に"0"にクリアされます。 +
+0: Current Voltage Monitor 2 Monitor Disable +
+1: Current Voltage Monitor 2 Monitoring Enable |R/W
+|0    |BHM_CVM1MONIEN |Current Voltage Monitor 1 Monitor Enable |Current Voltage Monitor 1からセンサーデータの読み出すための設定を行うビットです。このビットが "1"にセットされている時に Hardware Schedulerからタイミングパルスを受信すると、Current Voltage Monitor 1からシャント電圧とバス電圧データを読み出します。BHM_CVM1I2CERR 割り込みが発生した場合、このビットは自動的に "0"にクリアされます。 +
+0: Current Voltage Monitor 1 Monitor Disable +
+1: Current Voltage Monitor 1 Monitoring Enable |R/W
+|===
+
+=== BHM Interrupt Status Register (Offset: 0x2010)
+
+BHM Interrupt Status Registerは、Board Health
+Monitorの割り込みステータスレジスタです。 それぞれのビットは
+"1"をセットすると、割り込みをクリアする事ができます。
+
+.BHM Interrupt Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                                         |Description |R/W
+|31:19 |-               |Reserved                                      |Reserved |-
+|18    |BHM_TEMPALERT   |Temperature Sensor Alert Detect               |温度センサーから Alert信号を受信したことを示すビットです。OBC Module上に実装される、いずれかの温度センサーが Alert信号をアサートした時、本ビットが"1"にセットされます。 |R/WC
+|17    |BHM_CVMWARN     |Current Voltage Monitor Warning Alert Detect  |Current Voltage Monitorから Warning Alert信号を受信したことを示すビットです。OBC Module上に実装される、いずれかの Current Voltage Monitorが Warning信号をアサートした時、本ビットが"1"にセットされます。 |R/WC
+|16    |BHM_CVMCRIT     |Current Voltage Monitor Critical Alert Detect |Current Voltage Monitorから Critical Alert信号を受信したことを示すビットです。OBC Module上に実装される、いずれかの Current Voltage Monitorが Critical信号をアサートした時、本ビットが"1"にセットされます。 |R/WC
+|15:14 |- |Reserved     |Reserved                                      |-
+|13    |BHM_SWI2CERR    |Software I2C Error                            |ソフトウェア指示によるセンサーへのアクセスにおいてエラーが発生したことを示すビットです。BHM Retry Count Setting Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|12    |BHM_TEMP3I2CERR |Temperature Sensor 3 I2C Error                |Temperature Sensor 3 へのアクセスにおいてエラーが発生した事を示すビットです。センサーの初期化とデータ読み出しのどちらのエラーも本ビットに通知されます。BHM Retry Count Setting Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|11    |BHM_TEMP2I2CERR |Temperature Sensor 2 I2C Error                |Temperature Sensor 2 へのアクセスにおいてエラーが発生した事を示すビットです。センサーの初期化とデータ読み出しのどちらのエラーも本ビットに通知されます。BHM Retry Count Setting Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|10    |BHM_TEMP1I2CERR |Temperature Sensor 1 I2C Error                |Temperature Sensor 1 へのアクセスにおいてエラーが発生した事を示すビットです。センサーの初期化とデータ読み出しのどちらのエラーも本ビットに通知されます。BHM Retry Count Setting Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|9     |BHM_CVM2I2CERR  |Current Voltage Monitor2 I2C Error            |Current Voltage Monitor 2 へのアクセスにおいてエラーが発生した事を示すビットです。センサーの初期化とデータ読み出しのどちらのエラーも本ビットに通知されます。BHM Retry Count Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|8     |BHM_CVM1I2CERR  |Current Voltage Monitor1 I2C Error            |Current Voltage Monitor 1 へのアクセスにおいてエラーが発生した事を示すビットです。センサーの初期化とデータ読み出しのどちらのエラーも本ビットに通知されます。BHM Retry Count Registerに設定されているリトライ回数を超えるエラーが連続で発生した場合に、本ビットが "1"にセットされます。 |R/WC
+|7:2   |-               |Reserved                                      |Reserved |-
+|1     |BHM_SWACCEND    |Software Access End                           |ソフトウェア指示によるセンサーへの I2Cアクセスが完了した事を示すビットです。センサーのレジスタへのデータ書き込み または、読み出しが完了した時、本ビットが "1"にセットされます。 |R/WC
+|0     |BHM_INITACCEND  |Initialization Access End                     |センサーの初期化が完了した事を示すビットです。BHM Initialization Access Control RegisterのInitialization Requestをセットした後に、Initialization Enableビットがセットされている全てのセンサーの初期化が完了した時、本ビットが "1"にセットされます。 |R/WC
+|===
+
+=== BHM Interrupt Enable Register (Offset: 0x2014)
+
+BHM Interrupt Enable Registerは、Board Health Monitorの割り込みイベントを割り込み信号に通知する設定を行うためのレジスタです。
+
+本レジスタのビットが "1"にセットされている時、その割り込み要因に対応する Interrupt Status Registerのビットが "1"にセットされると、割り込み信号がアサートします。
+
+.Board Health Interrupt Enable Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol             |Field                                                 |Description                                                                        |R/W
+|31:19 |-                  |Reserved                                              |Reserved                                                                           |-
+|18    |BHM_TEMPALERTENB   |Temperature Sensor Alert Detect Enable                |BHM_TEMPALERTイベントが発生した時に割り込み信号を発生させるかどうかを設定します。  |R/W
+|17    |BHM_CVMWARNENB     |Current Voltage Monitor Warning Alert Detect Enable   |BHM_CVMWARNイベントが発生した時に割り込み信号を発生させるかどうかを設定します。    |R/W
+|16    |BHM_CVMCRITENB     |Current Voltage Monitor Critical Alert Detect Enable  |BHM_CVMCRITイベントが発生した時に割り込み信号を発生させるかどうかを設定します。    |R/W
+|15:14 |-                  |Reserved                                              |Reserved                                                                           |-
+|13    |BHM_SWI2CERRENB    |Software I2C Access Error Enable                      |BHM_SWI2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。   |R/W
+|12    |BHM_TEMP3I2CERRENB |Temperature Sensor3 Auto I2C Access Error Enable      |BHM_TEMP3I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|11    |BHM_TEMP2I2CERRENB |Temperature Sensor2 Auto I2C Access Error Enable      |BHM_TEMP2I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|10    |BHM_TEMP1I2CERRENB |Temperature Sensor1 Auto I2C Access Error Enable      |BHM_TEMP1I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|9     |BHM_CVM2I2CERRENB  |Current Voltage Monitor2 Auto I2C Access Error Enable |BHM_CVM2I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 |R/W
+|8     |BHM_CVM1I2CERRENB  |Current Voltage Monitor1 Auto I2C Access Error Enable |BHM_CVM1I2CERRイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 |R/W
+|7:2   |-                  |Reserved                                              |Reserved                                                                           |-
+|1     |BHM_SWACCENDENB    |Software Access End Enable                            |BHM_SWACCENDイベントが発生した時に割り込み信号を発生させるかどうかを設定します。   |R/W
+|0     |BHM_INITACCENDENB  |Initialization Access End Enable                      |BHM_INITACCENDイベントが発生した時に割り込み信号を発生させるかどうかを設定します。 |R/W
+|===
+
+=== BHM VDD_1V0 Shunt Voltage Monitor Register (Offset 0x2020)
+
+BHM VDD_1V0 Shunt Voltage Monitor Registerは、VDD_1V0 電源ドメインの
+Shunt Voltageを読み出すためのレジスタです。
+
+BHM Shunt Voltage Monitor Registerに格納されるデータは、Current Voltage Monitor INA3221-Q1の Shunt Voltage Registerからの取得データです。
+Shunt Voltageの実効データは Bit 15:3に格納されます。 Bit 2:0は ALL 0が格納されます。
+
+.BHM VDD_1V0 Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                             |Description |R/W
+|31    |BHM_1V0SNTVNUPD |VDD_1V0 Shunt Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが"1"にセットされている時、BHM_1V0SNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは"0"にクリアされ、BHM_1V0SNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは"1"を示します。 |RO
+|30:16 |-               |Reserved                          |Reserved |-
+|15:0  |BHM_1V0SNTV     |VDD_1V0 Shunt Voltage Monitor     |VDD_1V0電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_1V0 Bus Voltage Monitor Register (Offset 0x2024)
+
+BHM VDD_1V0 Bus Voltage Monitor Registerは、VDD_1V0 電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+BHM Bus Voltage Monitor Registerに格納されるデータは、Current Voltage Monitor INA3221-Q1の Bus Voltage Registerからの取得データです。
+Bus Voltageの実効データは Bit 15:3に格納されます。 Bit 2:0は ALL 0が格納されます。
+
+.BHM VDD_1V0 Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                          |Description |R/W
+|31    |BHM_1V0BUSVNUPD |VDD_1V0 Bus Voltage Not Updated|センサーデータの更新状態を示すビットです。
+このビットが"1"にセットされている時、BHM_1V0BUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは"0"にクリアされ、BHM_1V0BUSVを読み出したときこのビットは"1"にセットされます。また、
+リセット解除後にセンサーデータが取得されていない状態でも、このビットは"1"を示します。 |RO
+|30:16 |-               |Reserved                       |Reserved |-
+|15:0  |BHM_1V0BUSV     |VDD_1V0 Bus Voltage Monitor    |VDD_1V0電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_1V8 Shunt Voltage Monitor Register (Offset 0x2028)
+
+BHM VDD_1V8 Shunt Voltage Monitor Registerは、VDD_1V8 電源ドメインの Shunt Voltageを読み出すためのレジスタです。
+
+.BHM VDD_1V8 Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                             |Description |R/W
+|31    |BHM_1V8SNTVNUPD |VDD_1V8 Shunt Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_1V8SNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_1V8SNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-               |Reserved                          |Reserved |-
+|15:0  |BHM_1V8SNTV     |VDD_1V8 Shunt Voltage Monitor     |VDD_1V8 電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_1V8 Bus Voltage Monitor Register (Offset 0x202C)
+
+BHM VDD_1V8 Bus Voltage Monitor Registerは、VDD_1V8 電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+.BHM VDD_1V8 Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                           |Description |R/W
+|31    |BHM_1V8BUSVNUPD |VDD_1V8 Bus Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_1V8BUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_1V8BUSVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-               |Reserved |Reserved              |-
+|15:0  |BHM_1V8BUSV     |VDD_1V8 Bus Voltage Monitor     |VDD_1V8 電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3 Shunt Voltage Monitor Register (Offset 0x2030)
+
+BHM VDD_3V3 Shunt Voltage Monitor Registerは、VDD_3V3 電源ドメインの Shunt Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3 Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                             |Description |R/W
+|31    |BHM_3V3SNTVNUPD |VDD_3V3 Shunt Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_3V3SNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3SNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-               |Reserved                          |Reserved |-
+|15:0  |BHM_3V3SNTV     |VDD_3V3 Shunt Voltage Monitor |VDD_3V3電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3 Bus Voltage Monitor Register (Offset 0x2034)
+
+BHM VDD_3V3 Bus Voltage Monitor Registerは、VDD_3V3 電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3 Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol          |Field                           |Description |R/W
+|31    |BHM_3V3BUSVNUPD |VDD_3V3 Bus Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_3V3BUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3BUSVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-               |Reserved                        |Reserved |-
+|15:0  |BHM_3V3BUSV     |VDD_3V3 Bus Voltage Monitor     |VDD_3V3 電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3SYSA Shunt Voltage Monitor Register (Offset 0x2038)
+
+BHM VDD_3V3SYSA Shunt Voltage Monitor Registerは、VDD_3V3SYSA電源ドメインの Shunt Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3SYSA Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol              |Field                                |Description |R/W
+|31    |BHM_3V3SYSASNTVNUPD |VDD_3V3SYSA Shunt Voltage Not Updated|センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_3V3SYSASNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3SYSASNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-                   |Reserved                             |Reserved |-
+|15:0  |BHM_3V3SYSASNTV     |VDD_3V3SYSA Shunt Voltage Monitor    |VDD_3V3SYSA電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3SYSA Bus Voltage Monitor Register (Offset 0x203C)
+
+BHM VDD_3V3SYSA Bus Voltage Monitor Registerは、VDD_3V3SYSA電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3SYSA Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol              |Field                               |Description |R/W
+|31    |BHM_3V3SYSABUSVNUPD |VDD_3V3SYSA Bus Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_3V3SYSABUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3SYSABUSV を読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-                   |Reserved                            |Reserved |-
+|15:0  |BHM_3V3SYSABUSV     |VDD_3V3SYSA Bus Voltage Monitor     |VDD_3V3SYSA 電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3SYSB Shunt Voltage Monitor Register (Offset 0x2040)
+
+BHM VDD_3V3SYSB Shunt Voltage Monitor Registerは、VDD_3V3SYSB電源ドメインの Shunt Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3SYSB Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol              |Field                                 |Description |R/W
+|31    |BHM_3V3SYSBSNTVNUPD |VDD_3V3SYSB Shunt Voltage Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_3V3SYSBSNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3SYSBSNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは"1"を示します。 |RO
+|30:16 |-                   |Reserved                              |Reserved |-
+|15:0  |BHM_3V3SYSBSNTV     |VDD_3V3SYSB Shunt Voltage Monitor     |VDD_3V3SYSB 電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3SYSB Bus Voltage Monitor Register (Offset 0x2044)
+
+BHM VDD_3V3SYSB Bus Voltage Monitor Registerは、VDD_3V3SYSB電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3SYSB Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol              |Field                               |Description |R/W
+|31    |BHM_3V3SYSBBUSVNUPD |VDD_3V3SYSB Bus Voltage Not Updated |センサーデータの更新状態を示すビットです。このビットが"1"にセットされている時、BHM_3V3SYSBBUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは"0"にクリアされ、BHM_3V3SYSBBUSVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-                   |Reserved                            |Reserved |-
+|15:0  |BHM_3V3SYSBBUSV     |VDD_3V3SYSB Bus Voltage Monitor     |VDD_3V3SYSB電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3IO Shunt Voltage Monitor Register (Offset 0x2048)
+
+BHM VDD_3V3IO Shunt Voltage Monitor Registerは、VDD_3V3IO電源ドメインの Shunt Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3IO Shunt Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol            |Field                               |Description |R/W
+|31    |BHM_3V3IOSNTVNUPD |VDD_3V3IO Shunt Voltage Not Updated |センサーデータの更新状態を示すビットです。このビットが "1"にセットされている時、BHM_3V3IOSNTVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3IOSNTVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-                 |Reserved                            |Reserved |-
+|15:0  |BHM_3V3IOSNTV     |VDD_3V3IO Shunt Voltage Monitor     |VDD_3V3IO電源ドメインのシャント電圧を読み出すためのフィールドです。シャント電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM VDD_3V3IO Bus Voltage Monitor Register (Offset 0x204C)
+
+BHM VDD_3V3IO Bus Voltage Monitor Registerは、VDD_3V3IO 電源ドメインの Bus Voltageを読み出すためのレジスタです。
+
+.BHM VDD_3V3IO Bus Voltage Monitor Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol            |Field                             |Description |R/W
+|31    |BHM_3V3IOBUSVNUPD |VDD_3V3IO Bus Voltage Not Updated |センサーデータの更新状態を示すビットです。このビットが "1"にセットされている時、BHM_3V3IOBUSVフィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_3V3IOBUSVを読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-                 |Reserved                          |Reserved |-
+|15:0  |BHM_3V3IOBUSV     |VDD_3V3IO Bus Voltage Monitor     |VDD_3V3IO 電源ドメインのバス電圧を読み出すためのフィールドです。バス電圧の実効データは Bit 15:3に格納されます。 |RO
+|===
+
+=== BHM Temperature 1-3 Monitor Register (Offset 0x2050 - 0x2058)
+
+BHM Temperature 1-3 Monitor Registerは、Temperature Sensor 1-3の温度データを読み出すためのレジスタです。
+
+BHM Temperature 1-3 Monitor Registerに格納されるデータは、温度センサー TMP175-Q1の Temperature Registerからの取得データです。
+温度センサーの実効データは Bit 15:4に格納されます。 Bit 3:0は ALL 0が格納されます。
+
+.BHM Temperature 1 Monitor Register ビットフィールド (Offset 0x2050)
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol        |Field                     |Description |R/W
+|31    |BHM_TEMP1NUPD |Temperature 1 Not Updated |センサーデータの更新状態を示すビットです。このビットが
+"1"にセットされている時、BHM_TEMP1フィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_TEMP1 を読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。 |RO
+|30:16 |-             |Reserved                  |Reserved |-
+|15:0  |BHM_TEMP1     |Temperature 1 Monitor     |Temperature Sensor 1から取得した温度データを読み出すためのフィールドです。温度センサーの実効データは Bit 15:4に格納されます。 |RO
+|===
+
+.BHM Temperature 2 Monitor Register ビットフィールド (Offset 0x2054)
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol        |Field                     |Description |R/W
+|31    |BHM_TEMP2NUPD |Temperature 2 Not Updated |センサーデータの更新状態を示すビットです。
+このビットが "1"にセットされている時、BHM_TEMP2フィールドが前回の読み出し時から更新されていない事を示します。
+BHMがセンサーからデータを読み出した時、このビットは "0"にクリアされ、BHM_TEMP2 を読み出したときこのビットは"1"にセットされます。
+また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは "1"を示します。|RO
+|30:16 |-             |Reserved                  |Reserved |-
+|15:0  |BHM_TEMP2     |Temperature 2 Monitor     |Temperature Sensor 2から取得した温度データを読み出すためのフィールドです。温度センサーの実効データは Bit 15:4に格納されます。|RO
+|===
+
+.BHM Temperature 3 Monitor Register ビットフィールド (Offset 0x2058)
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit |Symbol |Field |Description |R/W
+|31 |BHM_TEMP3NUPD |Temperature 3 Not Updated
+|センサーデータの更新状態を示すビットです。このビットが
+"1"にセットされている時、BHM_TEMP3フィールドが前回の読み出し時から更新されていない事を示します。BHMがセンサーからデータを読み出した時、このビットは
+"0"にクリアされ、BHM_TEMP3
+を読み出したときこのビットは"1"にセットされます。また、リセット解除後にセンサーデータが取得されていない状態でも、このビットは
+"1"を示します。 |RO
+
+|30:16 |- |Reserved |Reserved |-
+
+|15:0 |BHM_TEMP3 |Temperature 3 Monitor |Temperature Sensor
+3から取得した温度データを読み出すためのフィールドです。温度センサーの実効データは
+Bit 15:4に格納されます。 |RO
+|===
+
+=== BHM Software Access Control Register (Offset 0x2060)
+
+BHM Software Access Control Registerは、ソフトウェア指示によりセンサーの任意のレジスタにアクセスするための制御を行うレジスタです。
+
+BHMは Software I2C Access Request (BHM_SWACCREQ)に "1"をセットすると、BHM_SWDEVSEL・BHM_SWREGADR・BHM_SWRWSELに設定された情報をもとにアクセスを行います。
+BHM_SWACCREQと他の設定フィールドは、同時にセットすることができます。
+
+BHM_SWRWSELに "0"を設定し、センサーへのライトアクセスを行う場合は、予め BHM Software Access Write Data Registerにライトデータを書き込んでおく必要があります。
+
+.BHM Software Access Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol       |Field                       |Description |R/W
+|31:25 |-            |Reserved                    |Reserved    |-
+|24    |BHM_SWACCREQ |Software I2C Access Request |Softwareによるセンサーへのアクセスを開始するためのリクエストビットです。
+このビットに"1"をセットするとセンサーアクセスを開始します。
+センサーへのアクセスが完了すると、このビットは自動的に "0"にクリアされます。 |R/W
+|23:19 |-            |Reserved                              |Reserved |-
+|18:16 |BHM_SWDEVSEL |Software I2C Access Device Select     |Softwareによるセンサーへのアクセスを行う時のセンサーデバイスを選択するためのフィールドです。 +
+0x0: Current Voltage Monitor 1 +
+0x1: Current Voltage Monitor 2 +
+0x2: Temperature Sensor 1 +
+0x3: Temperature Sensor 2 +
+0x4: Temperature Sensor 3 +
+0x5-0x7: 設定禁止 |R/W
+|15:8  |BHM_SWREGADR |Software I2C Access Register Address  |Softwareによるセンサーへのアクセスを行う時のセンサーのレジスタのアドレスを設定するためのフィールドです。|R/W
+|7:1   |-            |Reserved                              |Reserved |-
+|0     |BHM_SWRWSEL  |Software I2C Access Read/Write Select |Softwareによるセンサーへのアクセスを行う時のアクセス方向 (リード/ライト)を設定するためのビットです。 +
+0: Write Access +
+1: Read Access |R/W
+|===
+
+=== BHM Software Access Write Data Register (Offset 0x2064)
+
+BHM Software Access Write Data Registerは、ソフトウェア指示による I2Cアクセスにおいて、センサーに送信するデータを書き込むためのレジスタです。
+
+.BHM Software Access Write Data Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol       |Field                          |Description                                        |R/W
+|31:16 |-            |Reserved                       |Reserved                                           |-
+|15:0  |BHM_SWWRDATA |Software I2C Access Write Data |センサーに送信するデータを設定するフィールドです。 |R/W
+|===
+
+=== BHM Software Access Read Data Register (Offset 0x2068)
+
+BHM Software Access Read Data Registerは、ソフトウェア指示による I2Cアクセスによってセンサーから受信したデータを読み出すためのレジスタです。
+
+.BHM Software Access Write Data Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol       |Field                         |Description                                                |R/W
+|31:16 |-            |Reserved                      |Reserved                                                   |-
+|15:0  |BHM_SWRDDATA |Software I2C Access Read Data |センサーから受信したデータを読み出すためのフィールドです。 |RO
+|===
+
+=== BHM Prescaler Register (Offset 0x2080)
+
+BHM Prescale Registerは、BHMがセンサーと行う I2Cの通信タイミングを設定するためのレジスタです。
+
+OBC Module上のセンサーとの通信は I2Cの Standard mode (100 Kbps)で行います。
+このレジスタには、以下の計算値で設定される値を設定してください。
+
+[stem]
+++++
+BHM\_CLKPSC = \frac{System\ Clock\ frequency [MHz]}{0.1} - 1
+++++
+
+.BHM Prescale Setting Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol     |Field                          |Description                                                      |R/W
+|31:16 |-          |Reserved                       |Reserved                                                         |-
+|15:0  |BHM_CLKPSC |I2C Prescale From System Clock |システムクロックで I2Cの 1周期を生成するカウント数を設定します。 |R/W
+|===
+
+BHM_CLKPDCの設定による I2C通信の各タイミングは、以下の式で計算できます。
+
+[stem]
+++++
+START\ Hold\ Time(tHDSTA)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}
+++++
+
+[stem]
+++++
+STOP\ Setup\ Time(tSUSTO)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}
+++++
+
+[stem]
+++++
+Repeated\ START\ Setup\ Time(tSUSTA)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}
+++++
+
+[stem]
+++++
+SCL\ High\ Time(tHIGH)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}-5
+++++
+
+[stem]
+++++
+Data\ Hold\ Time(tHDDAT)[s] = System\ Clock\ period[s] \times 5
+++++
+
+[stem]
+++++
+Data\ Setup\ Time(tSUDAT)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}
+++++
+
+[stem]
+++++
+SCL\ Low\ Time(tLOW)[s] = tHDDAT[s] + tSUDAT[s]
+++++
+
+[stem]
+++++
+Bus\ Free\ Time(tBUF)[s] = System\ Clock\ period[s] \times \frac{BHM\_CLKPSC+1}{2}+5
+++++
+
+システムクロックが 48MHz, 24MHzの場合において、I2Cを 100
+kbpsに設定する場合の設定値と、I2Cのタイミングを以下に示します。
+
+.Standard-mode (100 kbps)通信時の BHM I2C Prescale Setting
+Registerの設定値とI2Cタイミング (システムクロックのサイクル数)
+[cols=",,",options="header",]
+|===
+|Parameter                            |System Clock=48MHz[default] |System Clock=24MHz
+|SYSMON_BHMCLKPSC[15:0] 設定値        |0x01DF [Divide by 480]      |0x00EF [Divide by 240]
+|START Hold Timing (tHDSTA)           |240 Cycle [5.00us]          |120 Cycle [5.00us]
+|STOP Setup Timing (tSUSTO)           |240 Cycle [5.00us]          |120 Cycle [5.00us]
+|Repeated START Setup Timing (tSUSTA) |240 Cycle [5.00us]          |120 Cycle [5.00us]
+|Clock High Timing (tHIGH)            |235 Cycle [4.90us]          |115 Cycle [4.79us]
+|Data Hold Timing (tHDDAT)            |5 Cycle [0.10us]            |5 Cycle [0.21us]
+|Data Setup Timing (tSUDAT)           |240 Cycle [5.00us]          |120 Cycle [5.00us]
+|Clock Low Timing (tLOW)              |245 Cycle [5.10us]          |125 Cycle [5.21us]
+|Bus Free Timing (tBUF)               |245 Cycle [5.10us]          |125 Cycle [5.21us]
+|===
+
+=== BHM Retry Count Register (Offset 0x2084)
+
+BHM Retry Count Registerは、BHMが行うセンサーへのアクセスにおける、リトライ回数の上限を設定するためのレジスタです。
+
+BHMは I2Cバスの通信においてセンサーからアクノリッジが送信されてこない場合にバスエラーと認識します。
+BHMはバスエラーが起こった場合、BHM_I2CACCCNTに設定された回数のリトライアクセスを行います。
+
+I2Cアクセスが頻発する事により、BHM_I2CACCCNTに設定されたリトライを行ってもエラーが改善しなかった場合、BHMは I2Cアクセスを停止します。
+このとき、BHM Access Control Registerの対象のセンサーの Enableビットを Disableに設定するとともに、BHM Interrupt Status Registerの対象のセンサーの I2C Access Errorビットをセットし、割り込みを発生します。
+
+.BHM Retry Count Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol        |Field             |Description                                               |R/W
+|31:8 |-             |Reserved          |Reserved                                                  |-
+|7:0  |BHM_I2CACCCNT |I2C Access Count  |I2Cアクセスにおけるリトライ回数を設定するフィールドです。 |R/W
+|===
+
+=== BHM Access Status Register (Offset 0x20C0)
+
+BHM Access Status Registerは、BHM機能が持つ I2Cバスの状態を示すレジスタです。
+
+このレジスタの全てのビットが "0"を示す時、I2Cバスは Idle状態であることを示します。
+
+.BHM Access Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol        |Field                                |Description                                                                                                                                          |R/W
+|31:6 |-             |Reserved                             |Reserved                                                                                                                                             |-
+|5    |BHM_SWBUSY    |Software Access Busy                 |ソフトウェアからの指示により、BHMが いずれからのセンサーに対して行うアクセスの状態を示すビットです。                                                 |RO
+|4    |BHM_TEMP3BUSY |Temperature Sensor3 Access Busy      |BHMが Temperature Sensor 3に対して行う自動アクセスの状態を示すビットです。センサーの初期化時とデータ読み出し時に、このビットは "1"を示します。       |RO
+|3    |BHM_TEMP2BUSY |Temperature Sensor2 Access Busy      |BHMが Temperature Sensor 2に対して行う自動アクセスの状態を示すビットです。センサーの初期化時とデータ読み出し時に、このビットは "1"を示します。       |RO
+|2    |BHM_TEMP1BUSY |Temperature Sensor1 Access Busy      |BHMが Temperature Sensor 1に対して行う自動アクセスの状態を示すビットです。センサーの初期化時とデータ読み出し時に、このビットは "1"を示します。       |RO
+|1    |BHM_CVM2BUSY  |Current Voltage Monitor2 Access Busy |BHMが Current Voltage Monitor 2に対して行う自動アクセスの状態を示すビットです。センサーの初期化時とデータの読み出し時に、このビットは "1"を示します。|RO
+|0    |BHM_CVM1BUSY  |Current Voltage Monitor1 Access Busy |BHMが Current Voltage Monitor 1に対して行う自動アクセスの状態を示すビットです。センサーの初期化時とデータの読み出し時に、このビットは"1"を示します。 |RO
+|===
+
+=== System Monitor IP Version Register (Offset: 0xF000)
+
+System Monitor IP Version Registerは、System Monitorの IPコアバージョンを示すレジスタです。
+
+.System Monitor IP Version Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol        |Field                            |Description                                   |R/W
+|31:24 |SYSMON_MAJVER |System Monitor IP Major Version  |System MonitorコアのMajor Versionを示します。 |RO
+|23:16 |SYSMON_MINVER |System Monitor IP Minor Version  |System MonitorコアのMinor Versionを示します。 |RO
+|15:0  |SYSMON_PATVER |System Monitor IP Patch Version  |System MonitorコアのPatch Versionを示します。 |RO
+|===

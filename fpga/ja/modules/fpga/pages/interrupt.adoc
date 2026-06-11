@@ -1,0 +1,46 @@
+= Interrupt
+
+SC-OBC-A1 FPGA では、IP コアからの割り込みを CPU に通知するために、
+Cortex-M3 内蔵の割り込みコントローラ (NVIC) の外部割り込み入力を使用します。
+
+Cortex-M3 の割り込みコントローラの仕様については、
+ARM Cortex-M3 Technical Reference Manual を参照してください。
+
+IRQ Bit [31:16]は、Mission Bus System に割り当てられた割り込みビットです。
+割り込みビットの割り当ては、ユーザーが設計した回路に応じて決まります。
+
+以下に、SC-OBC-A1 FPGA の IP コアが出力する割り込みの割り当てを示します。
+標準イメージでは、IRQ Bit [16] から [25] が IP コアに割り当てられ、
+IRQ Bit [31:26] は予約領域です。
+
+
+.SC-OBC-A1 FPGA割り込みリスト
+[cols=",,,",options="header",]
+|===
+|Exception No. |IRQ Bit |Interrupt                                        |Type
+|16            |[0]     |UART (Console)                                   |Pulse
+|17            |[1]     |HRMEM (High-reliability Memory)                  |Level
+|18            |[2]     |QSPI Controller (Configuration Flash Memory)     |Level
+|19            |[3]     |QSPI Controller (Data Store Flash Memory)        |Level
+|20            |[4]     |QSPI Controller (FRAM)                           |Level
+|21            |[5]     |CAN Controller                                   |Level
+|22            |[6]     |Reserved (OBC System Interrupt Area)             |-
+|23            |[7]     |External I2C Controller                          |Level
+|24            |[8]     |System Monitor (Hardware Error)                  |Level
+|25            |[9]     |System Monitor (Board Health Monitor)            |Level
+|26            |[10]    |General Purpose Timer (Global Timer)             |Level
+|27            |[11]    |General Purpose Timer (Software Interrupt Timer) |Level
+|28 - 31       |[15:12] |Reserved (OBC System Interrupt Area)             |-
+|32 - 47       |[31:16] |UDL IP Interrupt Area                            |-
+|32            |[16]    |UART 1                                           |Pulse
+|33            |[17]    |UART 2                                           |Pulse
+|34            |[18]    |UART 3                                           |Pulse
+|35            |[19]    |UART 4                                           |Pulse
+|36            |[20]    |UART 5                                           |Pulse
+|37            |[21]    |UART 6                                           |Pulse
+|38            |[22]    |I2C Controller 1                                 |Level
+|39            |[23]    |I2C Controller 2                                 |Level
+|40            |[24]    |AMD QSPI Controller                              |Level
+|41            |[25]    |AMD GPIO Controller                              |Level
+|47 - 42       |[31:26] |Reserved (UDL IP Interrupt Area)                 |-
+|===

@@ -1,0 +1,80 @@
+= Memory Map
+
+以下に、SC-OBC-A1 FPGAのメモリマップを示します。
+
+.SC-OBC-A1 FPGA Memory Map
+image::MemoryMap.svg[MemoryMap]
+
+.SC-OBC-A1 FPGA メモリマップ
+[cols=",,",options="header",]
+|===
+|Field                                          |Address Space             |Comment
+|Instruction Tightly Coupled Memory (Block RAM) |0x0000_0000 - 0x0000_7FFF |CFGITCMEN[0] is 1
+|HRMEM (SRAM)                                   |0x0000_0000 - 0x003F_FFFF |CFGITCMEM[0] is 0
+|Main AXI Bus                                   |0x4000_0000 - 0x4EFF_FFFF |
+|- QSPI Controller (Configuration Flash)        |0x4000_0000 - 0x4000_FFFF |
+|- QSPI Controller (Data Store Flash)           |0x4010_0000 - 0x4010_FFFF |
+|- QSPI Controller(FRAM)                        |0x4020_0000 - 0x4020_FFFF |
+|- CAN Controller                               |0x4040_0000 - 0x4040_FFFF |
+|- HRMEM Register                               |0x4050_0000 - 0x4050_FFFF |
+|Low Performance IP Bus                         |0x4F00_0000 - 0x4FFF_FFFF |
+|- System Register                              |0x4F00_0000 - 0x4F00_FFFF |
+|- UART Lite (Console Interface)                |0x4F01_0000 - 0x4F01_FFFF |
+|- External I2C Controller                      |0x4F03_0000 - 0x4F03_FFFF |
+|- System Monitor                               |0x4F04_0000 - 0x4F04_FFFF |
+|- General Purpose Timer                        |0x4F05_0000 - 0x4F05_FFFF |
+|Mission(UDL) Bus                               |0x5000_0000 - 0x5FFF_FFFF |
+|HRMEM Memory Mirror                            |0x6000_0000 - 0x603F_FFFF |
+|Coretex-M3 Internal Private peripheral bus     |0xE000_0000 - 0xE003_FFFF |
+|- ITM                                          |0xE000_0000 - 0xE000_0FFF |
+|- DWT                                          |0xE000_1000 - 0xE000_1FFF |
+|- FPB                                          |0xE000_2000 - 0xE000_2FFF |
+|- SCS                                          |0xE000_E000 - 0xE000_EFFF |
+|Coretex-M3 External Private peripheral bus     |0xE004_0000 - 0xE00F_FFFF |
+|- TPIU                                         |0xE004_0000 - 0xE004_0FFF |
+|- ETM                                          |0xE004_1000 - 0xE004_1FFF |
+|- External PPB                                 |0xE004_2000 - 0xE00F_EFFF |
+|- ROM Table                                    |0xE00F_F000 - 0xE00F_FFFF |
+|===
+
+SC-OBC-A1 FPGAのメモリ空間において、0x50000000〜0x5FFFFFFFは Mission Bus Systemに予約された空間です。
+このメモリ空間は、Mission Bus Systemの設計によって任意の構成に実装することができます。
+以下に示すメモリマップは、標準イメージに実装されている Mission Bus Systemのメモリマップです。
+
+.SC-OBC-A1 FPGA Mission Bus System Memory Map
+image::MissionBusMemoryMap.svg[MissionBusMemoryMap]
+
+[cols=",,",options="header",]
+|===
+|Field              |Address Space             |Comment
+|Mission(UDL) Bus   |0x5000_0000 - 0x5FFF_FFFF |
+|- UART Lite 1      |0x5000_0000 - 0x5000_FFFF |
+|- UART Lite 2      |0x5001_0000 - 0x5001_FFFF |
+|- UART Lite 3      |0x5002_0000 - 0x5002_FFFF |
+|- UART Lite 4      |0x5003_0000 - 0x5003_FFFF |
+|- UART Lite 5      |0x5004_0000 - 0x5004_FFFF |
+|- UART Lite 6      |0x5005_0000 - 0x5005_FFFF |
+|- I2C Controller 1 |0x5006_0000 - 0x5006_FFFF |
+|- I2C Controller 2 |0x5007_0000 - 0x5007_FFFF |
+|- AMD QSPI         |0x5008_0000 - 0x5008_FFFF |
+|- AMD GPIO         |0x5009_0000 - 0x5009_FFFF |
+|===
+
+CPUが使用する メインメモリーは アドレス 0x00000000にマッピングされています。
+メインメモリーは、ITCM (Instruction Tightly Coupled Memory)と HRMEM (High Reliability Memory)を選択する事ができます。
+ITCMと HRMEMの切り替えは Code Memory Select Registerの ITCMENビットによって行います。
+
+ITCMは FPGAの Block RAMで構成されています。 このメモリは FPGAの Configurationデータ (Bit Streamデータ)にプログラムを格納する事で、FPGAの Configuration後 すぐに CPUが動作します。
+HRMEMは On Boardの SRAMで構成されています。
+このメモリを使用する場合には、電源の投入後にデータを書き込んで使用する必要があります。
+HRMEMは IPコアの内部に SRAMのデータが放射線によって破壊された場合に訂正する仕組みを実装しているため、通常はこのメモリを使って動作します。
+
+.CPU Main Memory構成
+image::itcm_hrmem_select.png[itcm_hrmem_select]
+
+FPGAの Configuration後、アドレス 0x00000000に ITCMがマッピングされています。
+ITCMには プログラムローダーを書き込んで使用します。
+プログラムローダーは NOR Flash Memoryに書き込まれているプログラムを HRMEMに転送するために使用します。
+HRMEMのアドレス 0x60000000番地は、アドレス 0x00000000番地のミラーとなっており、プログラムローダーによって 0x60000000に書き込まれたデータは、メインメモリーを HRMEMに切り替えた時に 0x00000000から読み出す事ができます。
+プログラムローダーが HRMEMへのプログラムを書き込む最後の手順として、Code Memory Select Registerの ITCMENビットを 0に書き込みます。
+ITCMENビットの書き込みにより、メインメモリーを切り替えるとシステムにリセットがかかり、切り替えたメモリのアドレス 0x00000000から書き込まれたデータで CPUが動作します。

@@ -1,0 +1,376 @@
+= QSPI Controller
+
+QSPI Controllerは、SC OBCモジュールに搭載するメモリとSPIプロトコルによる通信を行うためのモジュールです。
+QSPI Controllerは、Single SPIモード, Dual SPIモード, Quad SPIモードに対応しており、メモリとの高速な通信を行う事ができます。
+
+SC OBCモジュールには、FPGAの Configurationデータを格納するためのNOR Flashメモリ (Configuration Flash Memory)と、運用データを格納するための NOR Flashメモリ (Data Store Flash Memory)及び FRAMが搭載されています。
+これに対し QSPI Controllerは 3個搭載されています。
+また、各メモリは冗長化の目的で 2個ずつ搭載されています。
+
+QSPI Controllerとメモリの構成を以下に示します。
+
+.QSPI Controllerと メモリの接続構成
+image::qspi_controller_structure.png[qspi_controller_structure]
+
+SC OBCモジュールに実装される メモリの型番は以下の通りです。
+各メモリの仕様については、ベンダーからリリースされている Datasheetを参照してください。
+
+[cols=",,,,",options="header",]
+|===
+|Memory                     |用途                           |Vendor               |Part Number |SC OBC搭載数
+|Configuration Flash Memory |FPGA Configurationデータの格納 |infineon (旧Cypress) |S25FL256L   |2 個
+|Data Store Flash Memory    |運用データの格納               |infineon (旧Cypress) |S25FL256L   |2 個
+|FRAM                       |運用データの格納               |infineon (旧Cypress) |CY15B104QSN |2 個
+|===
+
+QSPI Controllerは、各メモリにアクセスするため 3個搭載されています。
+各コアは以下のアドレスに配置されています。
+
+.QSPI Controller アドレスの割り当て
+[cols=",",options="header",]
+|===
+|Target                     |Base Address
+|Configuration Flash Memory |0x4000_0000
+|Data Store Memory          |0x4010_0000
+|FRAM                       |0x4020_0000
+|===
+
+== レジスタ詳細
+
+QSPI Controllerには以下のレジスタが実装されています。
+
+.QSPI Controller Register メモリマップ
+[cols="4,4,10,2",options="header",]
+|===
+|Offset |Symbol      |Register |Initial
+|0x0000 |QSPI_ACR    |QSPI Access Control Register               |0x00000000
+|0x0004 |QSPI_TDR    |QSPI TX Data Register                      |0x00000000
+|0x0008 |QSPI_RDR    |QSPI RX Data Register                      |0x00000000
+|0x000C |QSPI_ASR    |QSPI Access Status Register                |0x00000000
+|0x0010 |QSPI_FIFOSR |QSPI FIFO Status Register                  |0x00000000
+|0x0014 |QSPI_FIFORR |QSPI FIFO Reset Register                   |0x00000000
+|0x0020 |QSPI_ISR    |QSPI Interrupt Status Register             |0x00000000
+|0x0024 |QSPI_IER    |QSPI Interrupt Enable Register             |0x00000000
+|0x0030 |QSPI_CCR    |QSPI Clock Control Register                |0x00000000
+|0x0034 |QSPI_DCMSR  |QSPI Data Capture Mode Setting Register    |0x00000000
+|0x0038 |QSPI_FTLSR  |QSPI FIFO Threshold Level Setting Register |0x00000000
+|0xF000 |QSPI_VER    |QSPI Controller IP Version Register        |-
+|===
+
+=== QSPI Access Control Register (Offset 0x0000)
+
+QSPI Access Control Registerは、SPIアクセスにおける SS信号、I/Oモードを制御するためのレジスタです。
+
+Data Store Memoryと FRAMの制御を行う QSPI Controllerは、2つのメモリへのアクセスの切り替えを SPISSCTLビットで行います。
+メモリへのアクセスを開始するときは、SPISSCTLを 0b01または 0b10に設定し、アクセス対象の SS信号をアサートします。
+SPISSCTLを 0b11に設定することは禁止です。
+
+Configuration Flash Memoryを制御する QSPI Controllerは、SS信号が 1本しか接続されておらず、OBCモジュールの基板上でセレクトされています。
+そのため、Configuration Flash Memoryへアクセスを行う場合は、アクセスするメモリに関わらず SPISSCTLを 0b01にセットします。
+Configuration Flash Memoryのメモリ選択は、System Registerの Configuration Flash Memory Registerの設定により行うことができます。
+詳細は、System Registerの「Configuration Flash Memory Register」の章を参照してください。
+
+.QSPI Access Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol    |Field          |Description |R/W
+|31:18 |-         |Reserved       |Reserved    |-
+|17:16 |SPIIOMODE |SPI I/O Mode   |SPIアクセスにおけるI/Oモードを設定します。 +
+                               2b00: Standard(Single)-IO SPIモード +
+                               2b01: Dual-IO SPIモード +
+                               2b10: Quad-IO SPIモード +
+                               2b11: 設定禁止                                  |R/W
+|15:2  |-         |Reserved       |Reserved                                        |-
+|1:0   |SPISSCTL  |SPI CS Control |Chip Select信号の制御をするためのフィールドです。 +
+                               0b00: CS信号をネゲート +
+                               0b01: メモリ 1の CS信号をアサート +
+                               0b10: メモリ 2の CS信号をアサート +
+                               0b11: 禁止                                      |R/W
+|===
+
+=== QSPI TX Data Register (Offset 0x0004)
+
+QSPI TX Data
+Registerは、SPIデバイスにデータを送信するためのレジスタです。
+
+SPIデバイスへのデータ送信は TX FIFOを介し行います。
+
+SPIデバイスにデータを送信する場合、QSPI TX Data Registerの SPITXDATAフィールドに書き込みを行います。
+このレジスタにデータを書き込むと、書き込みデータは TX FIFOに格納されます。 TX FIFOは送信データを最大16 Byte格納できます。
+TX FIFOに格納されたデータは、書き込まれた順番ですぐに SPIデバイスに送信されます。
+
+.QSPI TX Data Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol    |Field       |Description                                                                                                                          |R/W
+|31:8 |-         |Reserved    |Reserved                                                                                                                             |-
+|7:0  |SPITXDATA |SPI Tx Data |TX FIFOに格納する送信データを書き込みます。このレジスタに書き込んだデータはTX FIFOに格納され、書き込まれた順番ですぐに送信されます。 |WO
+|===
+
+=== QSPI RX Data Register (Offset 0x0008)
+
+QSPI RX Data Registerは、SPIデバイスからのデータ受信制御と、RX FIFOからの受信データの読み出しを行うためのレジスタです。
+
+SPIデバイスからのデータ受信は RX FIFOを介して行います。
+
+SPIデバイスからデータを受信する場合、QSPI RX Data Registerの SPIRXDATAフィールドに書き込みアクセスを行います。
+このレジスタに書き込む値は何も影響しません。
+SPIRXDATAビットの書き込みが行われると、SPIデバイスに対し SPIクロックが送信され、SPIデバイスはそのクロックに同期しデータを出力します。
+SPIデバイスの出力データは、RX FIFOに格納されます。
+RX FIFOは 最大 16 Byteのデータを格納する事ができます。
+
+RX FIFOに格納されたデータを読み出す場合、QSPI RX Data Registerの SPIRXDATAフィールドに読み出しアクセスを行います。
+データは SPIデバイスから出力された順に読み出されます。
+
+QSPI Data Capture Mode Setting Registerの DTCAPTビットが"1" にセットされている時、SPIRXDATAフィールドの書き込み時だけではなく、QSPI TX Data Registerの書き込み時も、RX FIFOにデータが格納されます。
+この時 RX FIFOに格納されているデータは SPITXDATAに書き込んだデータ (SPIに出力されているデータ)となります。
+
+SPIデバイスが要求するダミーサイクルは、このレジスタに書き込みを行うことによって、SPIクロックを出力させ生成します。
+
+.QSPI RX Data Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol    |Field       |Description                                                                                                                                                          |R/W
+|31:8 |-         |Reserved    |Reserved                                                                                                                                                             |-
+|7:0  |SPIRXDATA |SPI Rx Data |このレジスタへの書き込み時は、SPIクロックを送信しデバイスからのデータ受信を行います。このレジスタの読み出し時は、RX FIFOに格納されたデータが古い順に読み出されます。 |R/W
+|===
+
+=== QSPI Access Status Register (Offset 0x000C)
+
+QSPI Access Status Registerは、QSPI Controllerの実行ステータスを確認するためのレジスタです。
+
+QSPI Controllerは、QSPI TX Data Registerへの書き込み、QSPI Rx Data Registerへの書き込み、QSPI Access Control Registerの SPI SS Controlレジスタの書き込み時に Busy状態となり、SPIが未使用状態になると Idle状態に戻ります。
+
+.QSPI Access Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol  |Field           |Description                                  |R/W
+|31:1 |-       |Reserved        |Reserved                                     |-
+|0    |SPIBUSY |SPI Status Busy |QSPI Controllerの実行ステータスを表示します。 +
+0: Idle状態 +
+1: Busy状態 |RO
+|===
+
+=== QSPI FIFO Status Register (Offset 0x0010)
+
+QSPI FIFO Status Registerは、TX FIFO/RX FIFOの状態を示すレジスタです。
+
+.QSPI FIFO Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol    |Field            |Description                                           |R/W
+|31:21 |-         |Reserved         |Reserved                                              |-
+|20:16 |TXFIFOCAP |TX FIFO Capacity |TX FIFOに格納されているデータ量を示すフィールドです。 |RO
+|15:5  |-         |Reserved         |Reserved                                              |-
+|4:0   |RXFIFOCAP |RX FIFO Capacity |RX FIFOに格納されているデータ量を示すフィールドです。 |RO
+|===
+
+=== QSPI FIFO Reset Register (Offset 0x0014)
+
+QSPI FIFO Reset Registerは、TX FIFO/RX FIFOのリセット制御(データ消去)を行うためのレジスタです。
+何らかの理由によりFIFOのクリアを行いたい場合にこのレジスタを使用します。
+
+.QSPI FIFO Reset Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol    |Field         |Description                                                          |R/W
+|31:17 |-         |Reserved      |Reserved                                                             |-
+|16    |TXFIFORST |TX FIFO Reset |本ビットに1をセットすると、TX FIFOがクリアされデータが消去されます。 |WO
+|15:1  |-         |Reserved      |Reserved                                                             |-
+|0     |RXFIFORST |RX FIFO Reset |本ビットに1をセットすると、RX FIFOがクリアされデータが消去されます。 |WO
+|===
+
+=== QSPI Interrupt Status Register (Offset: 0x0020)
+
+QSPI Interrupt Status Registerは、QSPI Controllerの割り込みステータスレジスタです。
+全ての割り込みビットは ”1"をセットするとクリアする事ができます。
+
+.QSPI Interrupt Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol    |Field                   |Description                                                                                                                                      |R/W
+|31:27 |-         |Reserved                |Reserved                                                                                                                                         |-
+|26    |TXFIFOUTH |TX FIFO Under Threshold |TX FIFOに格納されたデータが設定した閾値を下回った事を示すビットです。
+                                       TX FIFOに格納されるデータ量が QSPI FIFO Threshold Level Setting Registerの TXFIFOUTHLフィールドよりも少なくなった場合に本ビットがセットされます。|R/WC
+|25    |TXFIFOOVF |TX FIFO Overflow        |TX FIFOの Overflowが発生したことを示すビットです。TX FIFOが Fullの状態で QSPI TX Data Registerに書き込みを行うと本ビットがセットされます。       |R/WC
+|24    |TXFIFOUDF |TX FIFO Underflow       |TX FIFOの Underflowが発生したことを示すビットです。
+                                       この割り込みは通常の状態で発生する事はありません。この割り込みが発生した場合は、本モジュールをリセットしてください。                             |R/WC
+|23:19 |-         |Reserved                |Reserved                                                                                                                                         |-
+|18    |RXFIFOOTH |RX FIFO Over Threshold  |RX FIFOに格納されたデータが設定した閾値を上回った事を示すビットです。
+                                       RX FIFOに格納されるデータ量が QSPI FIFO Threshold Level Setting Registerの RXFIFOOTHLフィールドよりも多くなった場合に本ビットがセットされます。  |R/WC
+|17    |RXFIFOOVF |RX FIFO Overflow        |RX FIFOの Overflowが発生したことを示すビットです。RX FIFOが Fullの状態でデータ受信を行うと本ビットがセットされます。 |R/WC
+|16    |RXFIFOUDF |RX FIFO Underflow       |RX FIFOの Underflowが発生したことを示すビットです。RX FIFOが Emptyの状態で QSPI RX Data Registerの読み出しを行うと本ビットがセットされます。     |R/WC
+|15:1  |-         |Reserved                |Reserved                                                                                                                                         |-
+|0     |SPICTRLDN |SPI Control Done        |SPI制御が完了した事を示すビットです。
+                                       QSPI Controllerの実行ステータス(QSPI Access Status Register: SPI Status Busyビット)が BusyからIdleに変化した時、本ビットが 1にセットされます。   |R/WC
+|===
+
+=== QSPI Interrupt Enable Register (Offset: 0x0024)
+
+QSPI Interrupt Enable Registerは、QSPI Controllerの割り込みイベントを割り込み信号に通知する設定を行うためのレジスタです。
+
+.QSPI Interrupt Enable Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol       |Field                          |Description                                                                  |R/W
+|31:27 |-            |Reserved                       |Reserved                                                                     |-
+|26    |TXFIFOUTHEMB |TX FIFO Under Threshold Enable |TXFIFOUTHイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|25    |TXFIFOOVFEMB |TX FIFO Overflow Enable        |TXFIFOOVFイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|24    |TXFIFOUDFEMB |TX FIFO Underflow Enable       |TXFIFOUDFイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|23:19 |-            |Reserved                       |Reserved                                                                     |-
+|18    |RXFIFOOTHEMB |RX FIFO Over Threshold Enable  |RXFIFOOTHイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|17    |RXFIFOOVFEMB |RX FIFO Overflow Enable        |RXFIFOOVFイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|16    |RXFIFOUDFEMB |RX FIFO Underflow Enable       |RXFIFOUDFイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|15:1  |-            |Reserved                       |Reserved |-
+|0     |SPIBUSYDNEMB |SPI Status Busy Done Enable    |SPIBUSYDNイベントが発生した時に割り込み信号を発生させるかどうかを設定します。|R/W
+|===
+
+=== QSPI Clock Control Register (Offset 0x0030)
+
+QSPI Clock Control
+Registerは、SPIクロックの周波数、極性、位相設定を制御するためのレジスタです。
+
+.QSPI Clock Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol |Field              |Description                                                                                         |R/W
+|31:21 |-      |Reserved           |Reserved                                                                                            |-
+|20    |SCKPOL |SPI Clock Polarity |SPIクロックのクロック極性(CPOL)を設定します。 +
+                                0: Idle時のクロックを Low Levelとする +
+                                1: Idle時のクロックを High Levelとする                                                              |R/W
+|19:17 |-      |Reserved           |Reserved |-
+|16    |SCKPHA |SPI Clock Phase    |SPIクロックのクロック位相(CPHA)を設定します。 +
+                                0: Data sampling: Rise Edge / Data Shift: Fall Edge +
+                                1: Data sampling: Fall Edge / Data Shift: Rise Edge                                                 |R/W
+|15:12 |-      |Reserved           |Reserved                                                                                                                                                     |-
+|11:0  |SCKDIV |SPI Clock Divide   |システムクロックに対するSPIクロックの分周数を設定します。
+                                本フィールドに0(最小値)をセットした場合、SPI Clockはシステムクロックを2分周した周波数で動作します。 |R/W
+|===
+
+SPIクロックの周波数(fSCLK)は、システムクロック(fSYS)と SCKDIVの設定により以下のように計算されます。
+
+[stem]
+++++
+fSCLK[MHz] = \frac{fSYS[MHz]}{2(SCKDIV+1)}
+++++
+
+=== QSPI Data Capture Mode Setting Register (Offset 0x0034)
+
+QSPI Data Capture Mode Setting Registerは、RX FIFOにデータを取り込む条件を設定するためのレジスタです。
+このレジスタをセットすることで、QSPI RX Data Registerへの書き込みアクセスを行った時だけではなく、QSPI TX Data Registerへの書き込みを行った時もデータの取り込みを行う事ができます。
+これにより SPIデバイスへの「送信フェーズ」「ダミーフェーズ」を含めた全てのフェーズのデータを取り込むことができます。
+
+.QSPI Data Capture Mode Setting Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol |Field        |Description                                                        |R/W
+|31:1 |-      |Reserved     |Reserved                                                           |-
+|0    |DTCAPT |Data Capture |RX FIFOにデータを取り込む条件を設定します。 +
+                          0: QSPI RX Data Registerの書き込み時のみ +
+                          1: QSPI TX Data Registerと QSPI RX Data Registerの両方の書き込み時 |R/W
+|===
+
+=== QSPI FIFO Threshold Level Setting Register (Offset 0x0038)
+
+QSPI FIFO Threshold Level Setting Registerは、TX FIFO/RX FIFOのデータ量に応じた割り込み出力を行うための設定レジスタです。
+
+.QSPI FIFO Threshold Level Setting Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol     |Field                         |Description                                                                                |R/W
+|31:21 |-          |Reserved                      |Reserved                                                                                   |-
+|20:16 |TXFIFOUTHL |TX FIFO Under Threshold Level |TXFIFOUTH割り込みを発生させる TX FIFOのデータ格納量の閾値を設定するためのフィールドです。
+                                             本フィールドに 0または最大値を設定した場合 TXFIFOUTHは無効となり、割り込みは発生しません。 |R/W
+|15:5  |-          |Reserved                      |Reserved                                                                                   |-
+|4:0   |RXFIFOOTHL |RX FIFO Over Threshold Level  |RXFIFOOTH割り込みを発生させる RX FIFOのデータ格納料の閾値を設定するためのフィールドです。
+                                             本フィールドに 0または最大値を設定した場合 RXFIFOOTHは無効となり、割り込みは発生しません。 |R/W
+|===
+
+=== QSPI Controller IP Version Register (Offset: 0xF000)
+
+QSPI Controller IPコアバージョンの管理レジスタです。
+
+.QSPI Controller IP Version Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol |Field                            |Description                              |R/W
+|31:24 |MAJVER |QSPI Controller IP Major Version |QSPI ControllerコアのMajor Versionです。 |RO
+|23:16 |MINVER |QSPI Controller IP Minor Version |QSPI ControllerコアのMinor Versionです。 |RO
+|15:0  |PATVER |QSPI Controller IP Patch Version |QSPI ControllerコアのPatch Versionです。 |RO
+|===
+
+== QSPIアクセス手順
+
+この章では、Infineon製Flash Memory 「S25FL256L」を例に、QSPI Controllerによる Flashメモリの書き込み、読み出しを行うための手順を説明します。
+
+=== データ書き込み操作手順例
+
+本章では、Quad Page ProgramコマンドによるFlash Memoryへのデータ書き込みの手順を説明します。
+CPOL=0、CPHA=0に設定した時のSPI Interface波形と手順を以下に示します。
+
+.Quad Page Program アクセス波形
+image::quad_page_program_acc_seq.png[quad_page_program_acc_seq]
+
+以下の手順は、メモリ 1にアクセスする場合のレジスタ設定例を示しています。
+Configuration Flash Memoryを除き、メモリ 2にアクセスする場合は、QSPI Access Control Registerの SPISSCTLを 0x01から 0x02に置き換えて下さい。
+
+A::
+  QSPI Access Control Registerを設定します。
+  SPI I/O Modeは Standard(Single)-IO SPIモード、SPI SS Controlは"1"とするため、0x00000001を書き込みます。
+  書き込み後、SPI_CS信号がアクティブ状態(Low level)に変化します。
+B::
+  QSPI TX Data Registerに 1 ByteのInstruction(Quad Page Program: 0x32)と 3 Byteの Addressを書き込みます。 QSPI TX Data Registerに書き込まれたデータからSPIデバイスに順次送信されます。
+C::
+  Bで書き込んだ全てのデータの送信完了後に、QSPI Access Control Registerに0x00020001を書き込み、SPI I/O ModeをQuad-IO SPIモードに変更します。
+D::
+  Flash MemoryへのWriteデータをQSPI TX Data Registerに書き込み、データ送信を行います。
+  TX FIFOは送信するデータを最大16Byteまで格納することができます。
+  TX FIFOの容量を超えるサイズのデータを送信する場合は、TX FIFOが OverflowしないようQSPI TX Data Registerへの書き込み間隔を調整する必要があります。
+  TX_FIFOのデータ格納量のステータスは、QSPI FIFO Status RegisterやTX_FIFO関連の割り込み要因により確認することができます。
+E::
+  Dで書き込んだ全てのデータの送信完了後に、QSPI Access Control Registerに0x0000_0000を書き込みSPICS信号をインアクティブ状態(High level)に変化させ、SPIアクセスを終了します。
+
+CからD時の遷移を除いた全てのフェーズの切り替わりには、QSPI Controllerの実行ステータスを確認し、必ずIdle状態となってから次の操作を実行する必要があります。
+実行ステータスの確認方法は以下の2通りがあります。
+
+* QSPI Access Status Registerの監視
+* SPICTRLDN割り込みの検出
+
+QSPI Controllerの実行ステータスがBusyの状態で次の操作が実行された場合、SPIアクセスは不適切なフォーマットで転送される可能性があります。
+
+=== データ読み出し操作手順例
+
+本章では、Quad I/O ReadコマンドによるFlash Memoryからのデータ読み出しの手順を説明します。
+CPOL=0、CPHA=0に設定した時のSPI Interfaceの波形と手順を以下に示します。
+
+.Quad I/O Read アクセス波形
+image::quad_io_read_acc_seq.png[quad_io_read_acc_seq]
+
+以下の手順は、メモリ 1にアクセスする場合のレジスタ設定例を示しています。
+Configuration Flash Memoryを除き、メモリ 2にアクセスする場合は、QSPI Access Control Registerの SPISSCTLを 0x01から 0x02に置き換えて下さい。
+
+A::
+  QSPI Access Control Registerを設定します。
+  SPI I/O ModeはStandard(Single)-IO SPIモード、SPI SS Controlは1とするため、0x00000001を書き込みます。
+  書き込み後、SPI_CS信号がアクティブ状態 (Low level)に変化します。
+B::
+  QSPI TX Data Registerに 1 ByteのInstruction(Quad I/O Read:0xEB)を書き込みます。
+C::
+  Bで書き込んだデータの送信完了後に、QSPI Access Control Registerに0x00020001を書き込み、SPI I/O ModeをQuad-IO SPIモードに変更します。
+D::
+  QSPI TX Data Registerに 3 Byteの Address、1 Byteの Modeを 1 Byte単位で書き込み、TX FIFOに格納します。
+  QSPI TX Data Registerに書き込まれたデータからSPIデバイスに順次送信されます。
+  続けて、QSPI RX Data Registerに 4 Byte分の書き込みを行います。
+  この操作を行うことで、8 Cycleのダミーサイクル区間で IO信号を入力モードにして SPIクロックを駆動します。
+E::
+  QSPI RX Data Registerの読み出しを 4 Byte分行い、ダミーサイクル区間に RX FIFOに格納されたデータの読み出しを行います。
+  ダミーサイクル区間に格納されたデータは全て無効なデータであるため破棄してください。
+  4 Byte分全ての無効データの読み出しを行った後に、 QSPI RX Data Registerに書き込みを行い Flash Memoryからの Readデータを RX FIFOに格納します。
+  受信データはQSPI RX Data Registerを読み出すことにより受信順に取得されます。
+  RX FIFOは受信したデータを最大16Byteまで格納できます。
+  RX FIFOの容量を超えるサイズのデータを受信する場合は、RX FIFOが OverflowしないようQSPI TX Data Registerの書き込みと読み出しの順序を考慮する必要があります。
+  RX_FIFOのデータ格納量のステータスは、QSPI FIFO Status RegisterやRX_FIFO関連の割り込み要因により確認することができます。
+F::
+  Eで受信した全てのデータ読み出しの完了後に、QSPI Access Control Registerに0x00000000を書き込みSPI_CS信号をインアクティブ状態 (High level)に変化させ、SPIアクセスを終了します。
+
+Data Write Operation時と同様、CからD時を除いた全てのフェーズの切り替わり時には、QSPI Controllerの実行ステータスを確認し、必ずIdle状態となってから次の操作を実行する必要があります。

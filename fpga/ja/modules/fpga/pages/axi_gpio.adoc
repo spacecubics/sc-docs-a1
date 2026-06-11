@@ -1,0 +1,28 @@
+= AXI GPIO LogicCORE
+
+AXI GPIO は、General Purpose IOコアです。
+このコアは標準イメージにおいて、ユーザーが設計する Mission Bus Systemに実装されています。
+
+このコアは以下のアドレスに配置されています。
+
+.AXI GPIO Base Address
+[cols=",",options="header",]
+|===
+|IP Core | Base Address
+|AXI GPIO | 0x5009_0000
+|===
+
+IPコアの詳細やレジスタの仕様については、AMD (旧Xilinx)が提供する https://docs.amd.com/v/u/en-US/pg144-axi-gpio[PG144 AXI GPIO LogicCore IP Product Guide]を参照してください。
+
+AXI GPIOに設定されているパラメータは以下の通りです。
+
+.AXI GPIOパラメータ設定
+[cols=",,",options="header",]
+|===
+| Parameter        | Value | Description
+| GPIO Width       |    16 | GPIOチャネルのビット幅
+| Enable Interrupt |     1 | 割り込み機能: 有効
+|===
+
+User IOに接続されている GPIOは 10bitですが、レジスタの制御ビットと User IOのピン番号が一致するよう設計されています。
+そのため、AXI GPIOの bit 5:0は無効です。

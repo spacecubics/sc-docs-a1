@@ -1,0 +1,48 @@
+= User IO Pin Description
+
+SC-OBC-A1 FPGAの標準イメージにおいて、User IOに割り当てられている機能を以下に示します。
+これらの信号のアサインは、ユーザーの Mission Bus Systemの設計によって変わります。
+
+.User IO Pin Description
+[cols=",,,",options="header",]
+|===
+|Pin No. |User IO  |Direction |Description
+|7       |UIO1[0]  |OUTPUT    |UART 1 TX
+|8       |UIO1[1]  |INPUT     |UART 1 RX
+|9       |UIO1[2]  |OUTPUT    |UART 2 TX
+|10      |UIO1[3]  |INPUT     |UART 2 RX
+|11      |UIO1[4]  |OUTPUT    |UART 3 TX
+|12      |UIO1[5]  |INPUT     |UART 3 RX
+|13      |UIO1[6]  |OUTPUT    |UART 4 TX
+|14      |UIO1[7]  |INPUT     |UART 4 RX
+|16      |UIO1[8]  |OUTPUT    |UART 5 TX
+|17      |UIO1[9]  |INPUT     |UART 5 RX
+|18      |UIO1[10] |OUTPUT    |UART 6 TX
+|19      |UIO1[11] |INPUT     |UART 6 RX
+|20      |UIO1[12] |INOUT     |I2C 1 SCL
+|21      |UIO1[13] |INOUT     |I2C 1 SDA
+|22      |UIO1[14] |INOUT     |I2C 2 SCL
+|23      |UIO1[15] |INOUT     |I2C 2 SDA
+|74      |UIO2[0]  |OUTPUT    |SPI SCK
+|73      |UIO2[1]  |OUTPUT    |SPI MOSI
+|72      |UIO2[2]  |INPUT     |SPI MISO
+|71      |UIO2[3]  |OUTPUT    |SPI CS0
+|70      |UIO2[4]  |OUTPUT    |SPI CS1
+|69      |UIO2[5]  |OUTPUT    |SPI CS2
+|68      |UIO2[6]  |INOUT     |GPIO [6]
+|67      |UIO2[7]  |INOUT     |GPIO [7]
+|65      |UIO2[8]  |INOUT     |GPIO [8]
+|64      |UIO2[9]  |INOUT     |GPIO [9]
+|63      |UIO2[10] |INOUT     |GPIO [10]
+|62      |UIO2[11] |INOUT     |GPIO [11]
+|61      |UIO2[12] |INOUT     |GPIO [12]
+|60      |UIO2[13] |INOUT     |GPIO [13]
+|59      |UIO2[14] |INOUT     |GPIO [14]
+|58      |UIO2[15] |INOUT     |GPIO [15]
+|28      |UIO4[0]  |INPUT     |Reserved
+|47      |UIO4[1]  |INPUT     |SWCLK
+|46      |UIO4[2]  |INPUT     |SWDIO
+|45      |UIO4[3]  |OUTPUT    |UART Console TX
+|44      |UIO4[4]  |INPUT     |UART Console RX
+|43      |UIO4[5]  |INPUT     |Reserved
+|===

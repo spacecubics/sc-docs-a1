@@ -1,0 +1,128 @@
+= Overview
+
+SC-OBC Module A1 FPGA (以下 SC-OBC-A1 FPGA)は、Space Cubics製 OBC
+"SC-OBC Module A1"の FPGAに搭載されるシステムです。
+
+SC-OBC Module A1は 3U以上の CubeSatをターゲットとする On Board
+Computer(以下、OBC)です。 メインプロセッサ用デバイスとして AMD (旧
+Xilinx) 製 Artix-7 FPGAを採用し、FPGAにインプリするソフトコアの ARM
+Cortex-M3を核としシステムを構成します。
+FPGAを採用する事で、インターフェースの種類や数を
+柔軟にカスタマイズする事が可能です。
+
+SC-OBC-A1
+FPGAには、ユーザーのIPコアを実装するためのモジュールが準備されており、AXIバス規格に適合した
+IPコアを設計する事で、簡単にシステムに組み込む事ができます。
+
+.SC-OBC-A1 FPGA Block Diagram
+image::FPGA_BlockDiagram.svg[FPGA_BlockDiagram]
+
+SC-OBC-A1 FPGAのシステムは大きく 6つの機能に分割されます。
+
+*System Controller*
+
+System Controllerは、FPGAのクロック,
+リセットを生成するためのモジュールです。
+このモジュールで生成されるクロック, リセットは、FPGA全体に供給されます。
+
+*CPU Subsystem*
+
+Space Cubics OBCの FPGA機能を司る CPUを構成するモジュールです。 CPUには
+ARM製の Cortex-M3を採用しています。 ARM Cortex-M3 Design Start
+FPGA-Xilinx editionをベースとし、ITCM(Instruction Tightly Coupled
+Memory)や、バスIPなどで構成されます。
+
+*HRMEM (High-reliability Memory)*
+
+HRMEMは、CPUが使用するメインメモリです。 CPUとの接続は AMBA
+AHBで構成される CPU Local Busで行われます。
+
+CPU Local Busは ARM Cortex-M3の Instruction code AHB, Data code
+AHBをまとめたバスで構成されています。 CPU Local
+Busでメモリと直接接続する構成とする事で、Instructionアクセスのレイテンシーを最小限に抑えるように設計されています。
+
+*Main AXI Bus System*
+
+Main AXI Bus Systemは、CubeSat向けの
+OBCシステムとして必須となる機能の中で、アクセススピードが比較的重視されるIPコアをまとめたシステムです。
+
+このバスには、コンピュータシステムとして必要なメモリコントロールIPや
+CubeSatのメインの通信バスとなる
+CANのコントローラIPなどが接続されています。
+
+*Low Performance IP Bus System*
+
+Low Performance IP Bus Systemは、CubeSat向け
+OBCシステムとして必須となる機能の中、アクセス頻度の低いIPコアをまとめたシステムです。
+
+このシステムは
+AHBを採用する事で、IPコアの回路規模を小さくする事ができます。
+このバスには、システムレジスタやI2Cコントローラなどが接続されます。
+
+*Mission Bus System*
+
+Mission Bus Systemはユーザーが
+CubeSatのミッションを行うための機能を実装するシステムです。
+OBCの出荷時に Flash Memoryに書き込まれている標準イメージ
+(以下、標準イメージ)では、このシステムには
+UART、I2C、SPI、GPIOコアが接続されています。 ユーザーは、Mission Bus
+Systemを再設計したり、標準イメージとして実装される回路を修正したりする事により任意のシステムを実現する事ができます。
+
+このシステムは、バスとして
+AXIが採用されています。ユーザーはAMDが提供する
+IPコアを用いる事によって簡単にシステムを構築する事ができます。
+
+== Outline
+
+[cols="1,3",options="header",]
+|===
+|Feature                         |Description
+|FPGA Device                     |AMD (旧 Xilinx) Artix-7 (XC7A200T-1FBG676I) +
+- Logic Cell 215,360 +
+- CLB スライス数(4 LUT, 8 F/F) 33,650 +
+- CLB 最大分散RAM 2,888 Kb +
+- DSP48E1スライス 740 +
+- BlockRAM 36 Kb x 365 (18 Kb x 730 +
+- CMT 10 +
+- XADC 1 (for FPGA die temperature measurement) +
+- I/O Bank 10 +
+
+|CPU Core                        |ARM Cortex-M3 Design Start FPGA Xilinx Edition r0p1 +
+- CPU Revision r2p1 +
+- ARMv7-M architecture profile +
+- Maximum operation frequency up to 48 MHz +
+  ※ユーザーの回路も含めタイミング検証を行い最高動作周波数を確認する必要があります
+
+|On Chip SRAM (ITCM for Boot)    |32 KByte
+|HRMEM (High-reliability Memory) |4 MByte +
+- ECC Memory Protection +
+- Memory Scrubbing
+
+|Internal System Bus             |CPU Local Bus: AMBA AHB3 32 bitMain Bus: AMBA AXI4 32bit +
+Mission Bus (for User): AMBA AXI4 32 bit +
+Low Performance IP Bus: AMBA AHB3 32 bit
+
+|DMA                             |Not Support
+|Interrupt Support               |16 User interrupt signal
+|Watchdog Timer                  |Space Cubics TRCH-FPGA watchdog system
+|FPGA Configuration Flash Memory |32 MByte/Redundancy (S25FL256L)
+|Data Store Flash Memory         |32 MByte/Redundancy (S25FL256L)
+|FRAM                            |512 kByte x 2 (CY15B104QSN)
+|Control Area Network (CAN)      |Conforms to the ISO 11898-1, CAN2.0A, and CAN2.0B standards Supports bit rates up to 1 Mb/s
+|Space Communication Bus (SCBus) |この機能は、現在開発中です +
+Compliant with the USB-based communication interface proposed by Space Cubics (T.B.D.) +
+- Supports bit rates 12 Mbps (USB Full-Speed)
+
+|I2C Interface                   |SC-OBC Module A1 On Board I2C x 1 channel +
+External I2C x 1 channel
+
+|FPGA User IO                    |User IO Group 1 x 16 pin (IO電圧可変) +
+User IO Group 2 x 16 pin (IO電圧可変) +
+User IO Group 4 x 6 pin, Cortex-M3 Debug Port兼用 (3.3V固定) +
+標準イメージでは、以下のインターフェースが実装されています。 +
+- UART x 6 channel +
+- I2C x 2 channel +
+- SPI x 1 channel (Chip Select 3本) +
+- GPIO x 10 bit
+|Debug Port                       |ARM SW-DP (Serial Wire Debug Port) Interface
+|===

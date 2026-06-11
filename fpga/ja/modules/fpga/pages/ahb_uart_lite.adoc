@@ -1,0 +1,188 @@
+= AHB UART Lite
+
+AHB UART Liteは、UART通信を行うためのモジュールです。
+このモジュールはコンソール出力など簡易なシリアルデータの送受信を行うことを目的としているため、フロー制御を行う機能は持っていません。
+
+== レジスタ詳細
+
+AHB UARTコアは、システムに 7個実装されています。
+このうち 6個は、標準イメージにおいて、ユーザーが設計する Mission Bus Systemに実装されています。
+
+.AHB UART Lite Base Address
+[cols=",,",options="header",]
+|===
+|IP Core                 | Base Address | Comment
+|UART Lite (Console I/F) | 0x4F01_0000  |
+|UART Lite 1             | 0x5000_0000  | Implemented in Mission Bus System
+|UART Lite 2             | 0x5001_0000  | Implemented in Mission Bus System
+|UART Lite 3             | 0x5002_0000  | Implemented in Mission Bus System
+|UART Lite 4             | 0x5003_0000  | Implemented in Mission Bus System
+|UART Lite 5             | 0x5004_0000  | Implemented in Mission Bus System
+|UART Lite 6             | 0x5005_0000  | Implemented in Mission Bus System
+|===
+
+.AHB UART Lite Registerメモリマップ
+[cols="4,4,10,2",options="header",]
+|===
+|Offset |Symbol        |Register                          |Initial
+|0x0000 |UARTL_RXFIFOR |Rx FIFO Register                  |0x00000000
+|0x0004 |UARTL_TXFIFOR |Tx FIFO Register                  |0x00000000
+|0x0008 |UARTL_STATR   |Status Register                   |0x00000004
+|0x000C |UARTL_CTRLR   |Control Register                  |0x00000000
+|0x0010 |UARTL_UBRSR   |UART Baudrate Setting Register    |0x000001A0
+|0xF000 |UARTL_VER     |AHB UART Lite IP Version Register |-
+|===
+
+=== Rx FIFO Register (Offset 0x0000)
+
+Rx FIFO Registerは、UARTの受信データを読み出すためのレジスタです。
+
+Rx FIFOは受信したデータを 1 Byte単位で最大 16エントリまで格納できます。
+
+.Rx FIFO Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol |Field        |Description                                                                                         |R/W
+|31:8 |-      |Reserved     |Reserved                                                                                            |-
+|7:0  |RXDATA |UART Rx Data |受信したデータを Rx FIFOから読み出すためのレジスタです。 +
+UART受信した順に 1 Byteずつ読み出されます。|RO
+|===
+
+=== Tx FIFO Register (Offset 0x0004)
+
+Tx FIFO Registerは、UARTの送信データを書き込むためのレジスタです。
+
+書き込みデータは Tx FIFOに格納され、書き込み後直ちに送信を開始します。
+Tx FIFOは送信するデータを 1 Byte単位で最大 16エントリまで格納できます。
+
+.Tx FIFO Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol  |Field        |Description                                         |R/W
+|31:8 |-       |Reserved     |Reserved                                            |-
+|7:0  |TXDATA  |UART Tx Data |送信データを Tx FIFOに書き込むためのレジスタです。 +
+このTx FIFOに書き込みが行われると、ただちにUARTの送信が開始されます。 |WO
+|===
+
+=== Status Register (Offset 0x0008)
+
+Status Registerは、AHB UART Liteの Errorや
+FIFOのステータスを確認するためのレジスタです。
+
+Control Registerの INTENACTLが
+"1"にセットされている時、RXFIFOVALビット・TXFIFOEMPビット・RXUNDERRUNERRビット・TXOVERRUNERRビットのいずれかが "0"から "1"に変化するたびに CPUに対しエッジ割り込みが出力されます。
+
+.Status Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol |Field    |Description |R/W
+|31:10 |-      |Reserved |Reserved    |-
+
+|9     |TXOVERRUNERR |
+Tx FIFO Overrun Error |
+Tx FIFOが Fullの時に Tx FIFO Registerに書き込んだことにより Tx FIFOで Overrunエラーが発生したことを示すビットです。このビットは 読み出すとクリアされます。 +
+0: Tx FIFO Overrunエラー未発生 +
+1: Tx FIFO Overrunエラー発生 +
+Tx FIFO Overrunエラー発生時の書き込みデータは無効となり、Tx FIFOに格納されません。 |RC
+
+|8 |RXUNDERRUNERR |Rx FIFO Underrun Error |
+Rx FIFOが Emptyの時に Rx FIFO Registerを読み出したことにより Rx FIFOで Underrunエラーが発生したことを示すビットです。このビットは 読み出すとクリアされます。 +
+0: Rx FIFO Underrunエラー未発生 +
+1: Rx FIFO Underrunエラー発生 +
+Rx FIFO Underrunエラー発生時の Rx FIFO Registerからは無効データが読み出されます。 |RC
+
+|7 |PRTYERR |Parity Error |
+受信したUARTフレームでParityエラーが発生したことを示すビットです。このビットは読み出すとクリアされます。 +
+0: Parityエラー未発生 +
+1: Parityエラー発生 +
+このビットはUARTがParity無しで設定されている場合はアサートしません。 |RC
+
+|6 |FRAMEERR |Frame Error |
+受信したUARTフレームで Frameエラーが発生したことを示すビットです。このビットは 読み出すとクリアされます。 +
+0: Frameエラー未発生 +
+1: Frameエラー発生 +
+Frameエラー発生時の受信データは無効となり、Rx FIFOに格納されません。 |RC
+
+|5 |RXOVERRUNERR |Rx FIFO Overrun Error |
+Rx FIFOが Fullの時に UART受信したことにより Rx FIFOで Overrunエラーが発生したことを示すビットです。このビットは 読み出すとクリアされます。 +
+0: Rx FIFO Overrunエラー未発生 +
+1: Rx FIFO Overrunエラー発生 +
+Rx FIFO Overrunエラー発生時の受信データは無効となり、Rx FIFOに格納されません。|RC
+
+|4 |INTENAMON |Int Enabled Monitor |
+割り込み通知ステータスを示します。Control Registerの INTENACTLが "1"にセットされている時、このビットは "1"になります。 +
+0: 割り込み通知は無効 +
+1: 割り込み通知は有効 |RO
+
+|3 |TXFIFOFULL |Tx FIFO Full |Tx FIFOのFull状態を示します。 +
+0: Tx FIFOは Full状態でない +
+1: Tx FIFOは Full状態 |RO
+
+|2 |TXFIFOEMP |Tx FIFO Empty |
+Tx FIFOのEmpty状態を示します。 +
+0: Tx FIFOは Empty状態でない +
+1: Tx FIFOは Empty状態 |RO
+
+|1 |RXFIFOFULL |Rx FIFO Full |
+Rx FIFOのFull状態を示します。 +
+0: Rx FIFOは Full状態でない +
+1: Rx FIFOはFull状態 |RO
+
+|0 |RXFIFOVAL |Rx FIFO Valid Data |
+Rx FIFOの有効データ格納状態を示します。 +
+0: Rx FIFOにデータ無し +
+1: Rx FIFOにデータ有り |RO
+|===
+
+=== Control Register (Offset 0x000C)
+
+Control Registerは、Tx FIFO/Rx
+FIFOのリセット制御と割り込み通知の設定を行うためのレジスタです。
+
+.Control Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol    |Field              |Description                                                                                             |R/W
+|31:5 |-         |Reserved           |Reserved                                                                                                |-
+|4    |INTENACTL |Int Enable Control |AUB UART Liteの割り込み通知の有無を設定します。 +
+0: 割り込み通知を無効にする +
+1: 割り込み通知を有効にする |WO
+|3:2  |-         |Reserved           |Reserved                                                                                                |-
+|1    |RXFIFORST |Reset Rx FIFO      |このビットは Rx FIFOをクリアするためのビットです。このビットに1を書き込むと Rx FIFOをリセットします。   |WO
+|0    |TXFIFORST |Reset Tx FIFO      |このビットは Tx FIFOをクリアするためのビットです。このビットに1を書き込むと Tx FIFOをリセットします。   |WO
+|===
+
+=== UART Baudrate Setting Register (Offset 0x0010)
+
+UART Baudrate Setting
+Registerは、UART通信のボーレートを設定するためのレジスタです。
+
+この設定では、UARTの 1ビットの幅がシステムクロックの何サイクルで生成するかを設定します。
+そのため、System Register.System Clock Control Registerの CLKMODEの設定を変更し、システムクロックの周波数が変わると設定しなおす必要があります。
+
+レジスタの設定値はシステムクロックの周期と、設定するボーレートから以下のように計算することができます。
+
+[stem]
+++++
+ UDIVSET= \frac{1}{baudrate\[bps\] \times SYSCLK period\[s\]} -1
+++++
+
+.UART Baudrate Setting Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit  |Symbol  |Field                |Description                                          |R/W
+|15:0 |UDIVSET |UART Divider Setting |UART通信のボーレートを設定するためのフィールドです。 |R/W
+|===
+
+=== AHB UART Lite IP Version Register (Offset: 0xF000)
+
+AHB UART Lite IPのバージョン管理用レジスタです。
+
+.AHB UART Lite IP Version Register ビットフィールド
+[cols="1,3,3,12,1",options="header",]
+|===
+|bit   |Symbol |Field                          |Description                            |R/W
+|31:24 |MAJVER |AHB UART Lite IP Major Version |AHB UART LiteコアのMajor Versionです。 |RO
+|23:16 |MINVER |AHB UART Lite IP Minor Version |AHB UART LiteコアのMinor Versionです。 |RO
+|15:0  |PATVER |AHB UART Lite IP Patch Version |AHB UART LiteコアのPatch Versionです。 |RO
+|===

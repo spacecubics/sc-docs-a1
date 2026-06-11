@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Microsoft Visio、SVG Export により生成 NOR_Flash_for_Configuration.svg ページ - 1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="5.91593in" height="3.63547in"
+		viewBox="0 0 425.947 261.754" xml:space="preserve" color-interpolation-filters="sRGB" class="st16">
+	<v:documentProperties v:langID="1041" v:metric="true" v:viewMarkup="false"/>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#ffffff;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st2 {fill:#d8d8d8;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st3 {fill:#000000;font-family:Meiryo UI;font-size:0.666664em;font-weight:bold}
+		.st4 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st5 {fill:#000000;font-family:Meiryo UI;font-size:0.75em;font-weight:bold}
+		.st6 {font-size:1em}
+		.st7 {stroke:#000000;stroke-dasharray:3.5,2.5;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st8 {stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st9 {marker-end:url(#mrkr5-45);marker-start:url(#mrkr5-43);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st10 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:0.35714285714286}
+		.st11 {fill:#000000;font-family:Meiryo UI;font-size:0.583328em;font-weight:bold}
+		.st12 {fill:#ebf1df;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st13 {fill:#dbeef3;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st14 {fill:#c4d6a0;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st15 {fill:#92cddc;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st16 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Markers">
+		<g id="lend5">
+			<path d="M 2 1 L 0 0 L 1.98117 -0.993387 C 1.67173 -0.364515 1.67301 0.372641 1.98465 1.00043 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr5-43" class="st10" v:arrowType="5" v:arrowSize="1" v:setback="4.54" refX="4.54" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend5" transform="scale(2.8) "/>
+		</marker>
+		<marker id="mrkr5-45" class="st10" v:arrowType="5" v:arrowSize="1" v:setback="4.9" refX="-4.9" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend5" transform="scale(-2.8,-2.8) "/>
+		</marker>
+	</defs>
+	<g v:mID="0" v:index="1" v:groupContext="foregroundPage">
+		<title>ページ - 1</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<g id="shape29-1" v:mID="29" v:groupContext="shape" transform="translate(298.013,-6.26093)">
+			<title>シート.29</title>
+			<rect x="0" y="34.9825" width="127.559" height="226.772" class="st1"/>
+		</g>
+		<g id="shape35-3" v:mID="35" v:groupContext="shape" transform="translate(298.013,-218.859)">
+			<title>シート.35</title>
+			<desc>Reserved</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="254.667" width="127.56" height="14.1732"/>
+			<rect x="0" y="247.581" width="127.559" height="14.1732" class="st2"/>
+			<text x="44.16" y="257.07" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Reserved</text>		</g>
+		<g id="shape36-6" v:mID="36" v:groupContext="shape" transform="translate(298.013,-233.033)">
+			<title>シート.36</title>
+			<desc>NOR Flash Memory 2 for Configuration</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st4"/>
+			<text x="13.84" y="244.88" class="st5" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>NOR Flash Memory 2<v:newlineChar/><tspan
+						x="23" dy="1.2em" class="st6">for Configuration</tspan></text>		</g>
+		<g id="shape37-10" v:mID="37" v:groupContext="shape" transform="translate(82.8262,517.247) rotate(180)">
+			<title>シート.37</title>
+			<path d="M0 261.75 L25.76 261.75" class="st7"/>
+		</g>
+		<g id="shape38-13" v:mID="38" v:groupContext="shape" transform="translate(82.5797,460.554) rotate(180)">
+			<title>シート.38</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape39-16" v:mID="39" v:groupContext="shape" transform="translate(82.5797,432.208) rotate(180)">
+			<title>シート.39</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape40-19" v:mID="40" v:groupContext="shape" transform="translate(82.5797,403.861) rotate(180)">
+			<title>シート.40</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape41-22" v:mID="41" v:groupContext="shape" transform="translate(82.5797,332.995) rotate(180)">
+			<title>シート.41</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape42-25" v:mID="42" v:groupContext="shape" transform="translate(82.5797,304.649) rotate(180)">
+			<title>シート.42</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape43-28" v:mID="43" v:groupContext="shape" transform="translate(82.5797,290.476) rotate(180)">
+			<title>シート.43</title>
+			<path d="M0 261.75 L25.51 261.75" class="st7"/>
+		</g>
+		<g id="shape44-31" v:mID="44" v:groupContext="shape" transform="translate(235.651,517.247) rotate(180)">
+			<title>シート.44</title>
+			<path d="M0 261.75 L22.68 261.75" class="st8"/>
+		</g>
+		<g id="shape45-34" v:mID="45" v:groupContext="shape" transform="translate(235.651,290.476) rotate(180)">
+			<title>シート.45</title>
+			<path d="M0 261.75 L22.68 261.75" class="st8"/>
+		</g>
+		<g id="shape46-37" v:mID="46" v:groupContext="shape" transform="translate(-34.6074,255.493) rotate(-90)">
+			<title>シート.46</title>
+			<path d="M4.54 261.75 L4.9 261.75 L221.87 261.75" class="st9"/>
+		</g>
+		<g id="shape47-46" v:mID="47" v:groupContext="shape" transform="translate(227.147,-6.26091)">
+			<title>シート.47</title>
+			<desc>32 Mbyte (256 Mbit)</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="31.8898" cy="148.368" width="63.78" height="226.772"/>
+			<rect x="0" y="34.9824" width="63.7795" height="226.772" class="st4"/>
+			<text x="9.78" y="145.67" class="st5" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>32 Mbyte<v:newlineChar/><tspan
+						x="6.46" dy="1.2em" class="st6">(256 Mbit)</tspan></text>		</g>
+		<g id="shape48-50" v:mID="48" v:groupContext="shape" transform="translate(-190.513,255.493) rotate(-90)">
+			<title>シート.48</title>
+			<path d="M4.54 261.75 L4.9 261.75 L51.79 261.75" class="st9"/>
+		</g>
+		<g id="shape49-57" v:mID="49" v:groupContext="shape" transform="translate(-190.513,198.8) rotate(-90)">
+			<title>シート.49</title>
+			<path d="M4.54 261.75 L4.9 261.75 L23.45 261.75" class="st9"/>
+		</g>
+		<g id="shape50-64" v:mID="50" v:groupContext="shape" transform="translate(-190.513,142.107) rotate(-90)">
+			<title>シート.50</title>
+			<path d="M4.54 261.75 L4.9 261.75 L65.97 261.75" class="st9"/>
+		</g>
+		<g id="shape51-71" v:mID="51" v:groupContext="shape" transform="translate(-190.513,71.2412) rotate(-90)">
+			<title>シート.51</title>
+			<path d="M4.54 261.75 L4.9 261.75 L23.45 261.75" class="st9"/>
+		</g>
+		<g id="shape54-78" v:mID="54" v:groupContext="shape" transform="translate(0.375009,-3.83656)">
+			<title>シート.54</title>
+			<desc>0x000_0000</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.3465" cy="258.211" width="56.7" height="7.08661"/>
+			<rect x="0" y="254.667" width="56.6929" height="7.08661" class="st4"/>
+			<text x="4.78" y="260.31" class="st11" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>0x000_0000</text>		</g>
+		<g id="shape55-81" v:mID="55" v:groupContext="shape" transform="translate(0.375004,-60.5294)">
+			<title>シート.55</title>
+			<desc>0x080_0000</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.3465" cy="258.211" width="56.7" height="7.08661"/>
+			<rect x="0" y="254.667" width="56.6929" height="7.08661" class="st4"/>
+			<text x="4.78" y="260.31" class="st11" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>0x080_0000</text>		</g>
+		<g id="shape56-84" v:mID="56" v:groupContext="shape" transform="translate(0.375004,-117.222)">
+			<title>シート.56</title>
+			<desc>0x100_0000</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.3465" cy="258.211" width="56.7" height="7.08661"/>
+			<rect x="0" y="254.667" width="56.6929" height="7.08661" class="st4"/>
+			<text x="4.78" y="260.31" class="st11" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>0x100_0000</text>		</g>
+		<g id="shape57-87" v:mID="57" v:groupContext="shape" transform="translate(0.375,-188.088)">
+			<title>シート.57</title>
+			<desc>0x1A0_0000</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.3465" cy="258.211" width="56.7" height="7.08661"/>
+			<rect x="0" y="254.667" width="56.6929" height="7.08661" class="st4"/>
+			<text x="4.56" y="260.31" class="st11" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>0x1A0_0000</text>		</g>
+		<g id="shape58-90" v:mID="58" v:groupContext="shape" transform="translate(0.375004,-216.435)">
+			<title>シート.58</title>
+			<desc>0x1E0_0000</desc>
+			<v:textBlock v:margins="rect(4,0,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.3465" cy="258.211" width="56.7" height="7.08661"/>
+			<rect x="0" y="254.667" width="56.6929" height="7.08661" class="st4"/>
+			<text x="4.87" y="260.31" class="st11" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>0x1E0_0000</text>		</g>
+		<g id="shape59-93" v:mID="59" v:groupContext="shape" transform="translate(21.6348,-6.26099)">
+			<title>シート.59</title>
+			<desc>8 Mbyte</desc>
+			<v:textBlock v:margins="rect(4,2,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.3858" cy="233.408" width="46.78" height="56.6928"/>
+			<rect x="0" y="205.061" width="46.7717" height="56.6928" class="st4"/>
+			<text x="10.87" y="235.81" class="st3" v:langID="1041"><v:paragraph v:horizAlign="2"/><v:tabList/>8 Mbyte</text>		</g>
+		<g id="shape60-96" v:mID="60" v:groupContext="shape" transform="translate(21.6348,-62.9539)">
+			<title>シート.60</title>
+			<desc>4 Mbyte</desc>
+			<v:textBlock v:margins="rect(4,2,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.3858" cy="247.581" width="46.78" height="28.3464"/>
+			<rect x="0" y="233.408" width="46.7717" height="28.3464" class="st4"/>
+			<text x="10.87" y="249.98" class="st3" v:langID="1041"><v:paragraph v:horizAlign="2"/><v:tabList/>4 Mbyte</text>		</g>
+		<g id="shape61-99" v:mID="61" v:groupContext="shape" transform="translate(21.6348,-119.647)">
+			<title>シート.61</title>
+			<desc>10 Mbyte</desc>
+			<v:textBlock v:margins="rect(4,2,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.3858" cy="226.321" width="46.78" height="70.8661"/>
+			<rect x="0" y="190.888" width="46.7717" height="70.8661" class="st4"/>
+			<text x="5.46" y="228.72" class="st3" v:langID="1041"><v:paragraph v:horizAlign="2"/><v:tabList/>10 Mbyte</text>		</g>
+		<g id="shape62-102" v:mID="62" v:groupContext="shape" transform="translate(21.6348,-190.513)">
+			<title>シート.62</title>
+			<desc>4 Mbyte</desc>
+			<v:textBlock v:margins="rect(4,2,4,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.3858" cy="247.581" width="46.78" height="28.3464"/>
+			<rect x="0" y="233.408" width="46.7717" height="28.3464" class="st4"/>
+			<text x="10.87" y="249.98" class="st3" v:langID="1041"><v:paragraph v:horizAlign="2"/><v:tabList/>4 Mbyte</text>		</g>
+		<g id="shape83-105" v:mID="83" v:groupContext="shape" transform="translate(298.013,-6.26091)">
+			<title>シート.83</title>
+			<desc>FPGA Bitstream Data (Golden data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="233.408" width="127.56" height="56.6928"/>
+			<rect x="0" y="205.061" width="127.559" height="56.6928" class="st12"/>
+			<text x="19.22" y="231.01" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>FPGA Bitstream Data<v:newlineChar/><tspan
+						x="34.33" dy="1.2em" class="st6">(Golden data)</tspan></text>		</g>
+		<g id="shape84-109" v:mID="84" v:groupContext="shape" transform="translate(298.013,-62.9538)">
+			<title>シート.84</title>
+			<desc>Flight Software (Golden data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st13"/>
+			<text x="31.44" y="245.18" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Flight Software<v:newlineChar/><tspan
+						x="34.33" dy="1.2em" class="st6">(Golden data)</tspan></text>		</g>
+		<g id="shape85-113" v:mID="85" v:groupContext="shape" transform="translate(298.013,-91.3003)">
+			<title>シート.85</title>
+			<desc>Reserved</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st2"/>
+			<text x="44.16" y="249.98" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Reserved</text>		</g>
+		<g id="shape86-116" v:mID="86" v:groupContext="shape" transform="translate(298.013,-119.647)">
+			<title>シート.86</title>
+			<desc>FPGA Bitstream Data (Update data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="226.321" width="127.56" height="70.8661"/>
+			<rect x="0" y="190.888" width="127.559" height="70.8661" class="st14"/>
+			<text x="19.22" y="223.92" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>FPGA Bitstream Data<v:newlineChar/><tspan
+						x="33.95" dy="1.2em" class="st6">(Update data)</tspan></text>		</g>
+		<g id="shape87-120" v:mID="87" v:groupContext="shape" transform="translate(298.013,-190.513)">
+			<title>シート.87</title>
+			<desc>Flight Software (Update data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st15"/>
+			<text x="31.44" y="245.18" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Flight Software<v:newlineChar/><tspan
+						x="33.95" dy="1.2em" class="st6">(Update data)</tspan></text>		</g>
+		<g id="shape100-124" v:mID="100" v:groupContext="shape" transform="translate(85.4144,-6.26104)">
+			<title>シート.100</title>
+			<rect x="0" y="34.9825" width="127.559" height="226.772" class="st1"/>
+		</g>
+		<g id="shape101-126" v:mID="101" v:groupContext="shape" transform="translate(85.4144,-218.859)">
+			<title>シート.101</title>
+			<desc>Reserved</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="254.667" width="127.56" height="14.1732"/>
+			<rect x="0" y="247.581" width="127.559" height="14.1732" class="st2"/>
+			<text x="44.16" y="257.07" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Reserved</text>		</g>
+		<g id="shape102-129" v:mID="102" v:groupContext="shape" transform="translate(85.4144,-233.033)">
+			<title>シート.102</title>
+			<desc>NOR Flash Memory 1 for Configuration</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st4"/>
+			<text x="13.84" y="244.88" class="st5" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>NOR Flash Memory 1<v:newlineChar/><tspan
+						x="23" dy="1.2em" class="st6">for Configuration</tspan></text>		</g>
+		<g id="shape103-133" v:mID="103" v:groupContext="shape" transform="translate(85.4144,-6.26102)">
+			<title>シート.103</title>
+			<desc>FPGA Bitstream Data (Golden data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="233.408" width="127.56" height="56.6928"/>
+			<rect x="0" y="205.061" width="127.559" height="56.6928" class="st12"/>
+			<text x="19.22" y="231.01" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>FPGA Bitstream Data<v:newlineChar/><tspan
+						x="34.33" dy="1.2em" class="st6">(Golden data)</tspan></text>		</g>
+		<g id="shape104-137" v:mID="104" v:groupContext="shape" transform="translate(85.4144,-62.9539)">
+			<title>シート.104</title>
+			<desc>Flight Software (Golden data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st13"/>
+			<text x="31.44" y="245.18" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Flight Software<v:newlineChar/><tspan
+						x="34.33" dy="1.2em" class="st6">(Golden data)</tspan></text>		</g>
+		<g id="shape105-141" v:mID="105" v:groupContext="shape" transform="translate(85.4144,-91.3004)">
+			<title>シート.105</title>
+			<desc>Reserved</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st2"/>
+			<text x="44.16" y="249.98" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Reserved</text>		</g>
+		<g id="shape106-144" v:mID="106" v:groupContext="shape" transform="translate(85.4144,-119.647)">
+			<title>シート.106</title>
+			<desc>FPGA Bitstream Data (Update data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="226.321" width="127.56" height="70.8661"/>
+			<rect x="0" y="190.888" width="127.559" height="70.8661" class="st14"/>
+			<text x="19.22" y="223.92" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>FPGA Bitstream Data<v:newlineChar/><tspan
+						x="33.95" dy="1.2em" class="st6">(Update data)</tspan></text>		</g>
+		<g id="shape107-148" v:mID="107" v:groupContext="shape" transform="translate(85.4144,-190.513)">
+			<title>シート.107</title>
+			<desc>Flight Software (Update data)</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="63.7795" cy="247.581" width="127.56" height="28.3464"/>
+			<rect x="0" y="233.408" width="127.559" height="28.3464" class="st15"/>
+			<text x="31.44" y="245.18" class="st3" v:langID="1041"><v:paragraph v:horizAlign="1"/><v:tabList/>Flight Software<v:newlineChar/><tspan
+						x="33.95" dy="1.2em" class="st6">(Update data)</tspan></text>		</g>
+	</g>
+</svg>

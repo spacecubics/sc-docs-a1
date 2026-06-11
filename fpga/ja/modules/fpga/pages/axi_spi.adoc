@@ -1,0 +1,36 @@
+= AXI SPI LogicCORE
+
+AXI SPI は、SPI転送を行うためのIPコアです。
+このコアは標準イメージにおいて、ユーザーが設計する Mission Bus Systemに実装されています。
+
+採用するIPコアの正式名称は AXI Quad SPI LogicCORE IPですが、Single SPIモードでのみ動作する事ができます。
+
+このコアは以下のアドレスに配置されています。
+
+.AXI SPI Base Address
+[cols=",",options="header",]
+|===
+|IP Core | Base Address
+|AXI SPI | 0x5008_0000
+|===
+
+IPコアの詳細やレジスタの仕様については、AMD (旧Xilinx)が提供する https://docs.amd.com/r/en-US/pg153-axi-quad-spi/Introduction[PG153 AXI Quad SPI LogicCORE IP Product Guide]を参照してください。
+
+AXI SPIに設定されているパラメータは以下の通りです。
+
+.AXI SPIパラメータ設定
+[cols=",,",options="header",]
+|===
+| Parameter                | Value | Description
+| Enable XIP Mode          |     0 | エンハンストモード (XIP Mode disable)
+| Enable Performance Mode  |     0 | レガシモード (AXI4-Lite I/F)
+| SPI Mode                 |     0 | スタンダード SPI
+| Transaction Width        |     8 | 8bit単位による SPI転送
+| Frequency Ratio          |     2 | SCK出力が外部 SPIクロック入力の 2分周 (4.8MHz)
+| No. of Slaves            |     3 | スレーブデバイス数: 3
+| Enable Master Mode       |     1 | マスター SPIモード
+| Slave Device             |     0 | 対応するスレーブデバイスの種類: Mixed
+| FIFO Depth               |    16 | FIFOの深さ: 16
+| Enable STARTUP Primitive |     0 | STARTUPプリミティブ: 未使用
+| Enable Async Clock Mode  |     1 | AXIクロック入力と外部 SPIクロック入力が非同期
+|===

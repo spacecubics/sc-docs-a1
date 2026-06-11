@@ -1,0 +1,43 @@
+= System Boot
+
+== NOR Flash Memory Partition Layout
+
+SC-OBC Module A1は、FPGAの Bitstreamデータと Flight Softwareを NOR Flash Memoryに格納しています。
+
+ひとつの NOR Flash Memoryには、Goldenと Updateの 2つのデータセットを想定しています。
+
+Goldenは、実績のあるデータを書き込みます。この領域は宇宙機の打ち上げ前に書き込み、以後 書き換えを行わない事を想定しています。
+Updateは、軌道上での書き換えを想定しています。
+もしも、Updateデータに問題がある場合は、Goldenに書き込まれたデータによって、Updateデータを復旧します。
+
+このように ひとつの NOR Flash Memoryに、2つのデータを書き込む事で、データの信頼性を確保しています。
+また、Configuraionデータを格納するための Flash Memroyは 2個搭載されており、NOR Flash Memory 2を NOR Flash Memory 1のミラーとする事により、信頼性の高いシステムを構築します。
+
+以下に NOR Flash Memoryのデータパーティションを示します。
+
+.NOR Flash Memory Partition Layout
+image::NOR_Flash_for_Configuration.svg[NOR Flash Memory Partition Layout]
+
+[cols=",",options="header",]
+|===
+|Address |Data Partition
+|0x000_0000 - 0x07F_FFFF |FPGA Bitstream Data (Golden data)
+|0x080_0000 - 0x0BF_FFFF |Flight Software (Golden data)
+|0x100_0000 - 0x19F_FFFF |FPGA Bitstream Data (Update data)
+|0x1A0_0000 - 0x1DF_FFFF |Flight Software (Update data)
+|===
+
+== FPGA Boot Flow
+
+FPGAの Bootには AMD 7シリーズ FPGAでサポートされている Fallback MultiBootを活用しています。
+
+MultiBootフローを以下に示します。
+
+.FPGA MultiBoot Flow
+image::MultiBoot_Flow.svg[FPGA MultiBoot Flow]
+
+TRCHによって FPGAに電源が投入されると、FPGAは NOR Flash Memoryのアドレス0から Goldenイメージを読み込みます。
+Goldenデータの読み込み中に MultiBootの処理を見つけると、Updateイメージが格納されているアドレスにジャンプし、Updateイメージの読み込みを行います。
+
+読み込まれた Updateイメージが正常なデータであった場合、FPGAは Configurationを完了し Updateイメージで動作します。 読み込まれた
+Updateイメージに CRCエラーなどの問題があった場合、FPGAは Fallbackプロセスにより Goldenイメージの読み込みを行い、FPGAは Goldenイメージで動作します。
