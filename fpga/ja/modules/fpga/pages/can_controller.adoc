@@ -1099,11 +1099,11 @@ Busへ接続)します。
 
 . ビットタイミングの設定
 +
-CAN通信における 1ビット時間は、Time Segment (Tq)の単位で分割された、Sync
+CAN通信における 1ビット時間は、Time Quantum (Tq)の単位で分割された、Sync
 Segment、Time Segment 1、Time segment 2の 3つのセグメントフェーズの
 Total時間によって決まります。
 +
-Time Segment (Tq)の周期は CAN Time Quantum Prescaler Registerの
+Time Quantum (Tq)の周期は CAN Time Quantum Prescaler Registerの
 TQPSETフィールドに CANクロックのクロックサイクル数を設定します。 Time
 Segment 1、Time segment 2の長さは、CAN Bit Timing Setting Registerの
 TS1、TS2フィールドに Tqサイクル数を設定します。 Sync Segmentの長さは Tq
