@@ -2,23 +2,45 @@
 
 The definitions of terms used in this document are as follows.
 
-[width="100%",cols="1,4",options="header",]
-|===
-|Term |Description
-|OBC |Refers to the SC-OBC Module A1.
-|TRCH |Abbreviation for Timing, Reset, Configuration & Health Controller. The OBC employs the PIC16LF877.
-|FPGA |Abbreviation for Field Programmable Gate Array. The OBC uses the Artix-7 from AMD (formerly Xilinx).
-|Dev Board |Refers to the SC-OBC Module A1 Development Board.
-|Universal Area |Refers to the area on the Dev Board containing a group of unconnected through-holes arranged at a 2.54mm pitch.
-|UIO1 |Refers to User IO Group 1 within the OBC's FPGA.
-|UIO2 |Refers to User IO Group 2 within the OBC's FPGA.
-|UIO3 |Refers to User IO Group 3 within the OBC's FPGA.
-|UIO4 |Refers to User IO Group 4 within the OBC's FPGA.
-|VIN_A |Indicates one side (System A) of the OBC's redundant power input.
-|VIN_B |Indicates another side (System B) of the OBC's redundant power supply input.
-|VDD_3V3_SYS |Indicates a voltage output from the OBC. It is a combined voltage generated from the +5V input to VIN_A and VIN_B, used in the OBC's TRCH and other circuits. For details, refer to the OBC power supply circuit configuration.
-|VDD_3V3_IO |Indicates a voltage output from the OBC. This is the voltage after VDD_3V3_SYS has passed through additional OBC circuitry, used for components like the OBC FPGA. For details, refer to the OBC power supply circuit configuration.
-|VDD_3V3_DCDC |Indicates the output (+3.3V) of the buck DC/DC converter circuit (IC13) provided on the Dev Board.
-|VDD_UIO1 |Indicates the power supply to the FPGA Bank to which UIO1 belongs.
-|VDD_UIO2 |Indicates the power supply to the FPGA Bank to which UIO2 belongs.
-|===
+OBC:: Refers to the SC-OBC Module A1.
+
+TRCH:: Abbreviation for Timing, Reset, Configuration & Health Controller.
+The OBC employs the PIC16LF877.
+
+FPGA:: Abbreviation for Field Programmable Gate Array.
+The OBC uses the Artix-7 from AMD, formerly Xilinx.
+
+Dev Board:: Refers to the SC-OBC Module A1 Development Board.
+
+Universal Area:: Refers to the area on the Dev Board containing a group of
+unconnected through-holes arranged at a 2.54 mm pitch.
+
+UIO1:: Refers to User IO Group 1 within the OBC's FPGA.
+
+UIO2:: Refers to User IO Group 2 within the OBC's FPGA.
+
+UIO3:: Refers to User IO Group 3 within the OBC's FPGA.
+
+UIO4:: Refers to User IO Group 4 within the OBC's FPGA.
+
+VIN_A:: Indicates one side, System A, of the OBC's redundant power input.
+
+VIN_B:: Indicates the other side, System B, of the OBC's redundant power
+input.
+
+VDD_3V3_SYS:: Indicates a voltage output from the OBC.
+It is a combined voltage generated from the +5 V inputs to VIN_A and VIN_B
+and is used by the OBC's TRCH and other circuits.
+For details, refer to the OBC power supply circuit configuration.
+
+VDD_3V3_IO:: Indicates a voltage output from the OBC.
+This voltage is generated after VDD_3V3_SYS passes through additional OBC
+circuitry and is used by components such as the OBC FPGA.
+For details, refer to the OBC power supply circuit configuration.
+
+VDD_3V3_DCDC:: Indicates the +3.3 V output of the buck DC/DC converter circuit,
+IC13, provided on the Dev Board.
+
+VDD_UIO1:: Indicates the power supply to the FPGA bank to which UIO1 belongs.
+
+VDD_UIO2:: Indicates the power supply to the FPGA bank to which UIO2 belongs.
