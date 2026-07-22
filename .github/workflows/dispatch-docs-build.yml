@@ -1,0 +1,39 @@
+name: Dispatch Docs Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.SC_DOCS_APP_ID }}
+          private-key: ${{ secrets.SC_DOCS_APP_PRIVATE_KEY }}
+          owner: spacecubics
+          repositories: |
+            sc-docs
+          permission-contents: write
+
+      - name: Dispatch docs build
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          gh api --method POST repos/spacecubics/sc-docs/dispatches \
+            -f event_type=docs-source-updated \
+            -f "client_payload[source_repository]=${SOURCE_REPOSITORY}" \
+            -f "client_payload[source_ref]=${SOURCE_REF}" \
+            -f "client_payload[source_sha]=${SOURCE_SHA}"
