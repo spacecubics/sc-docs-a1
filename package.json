@@ -1,0 +1,23 @@
+{
+  "name": "sc-docs-a1",
+  "private": true,
+  "packageManager": "pnpm@12.9.0",
+  "scripts": {
+    "lint:ja": "textlint \"ja/**/*.adoc\"",
+    "lint:ja:software": "textlint \"ja/modules/software/**/*.adoc\"",
+    "lint:ja:fpga": "textlint \"ja/modules/fpga/**/*.adoc\"",
+    "lint:ja:dev-board": "textlint \"ja/modules/dev-board/**/*.adoc\"",
+    "lint:ja:root": "textlint \"ja/modules/ROOT/**/*.adoc\""
+  },
+  "devDependencies": {
+    "textlint": "15.8.0",
+    "textlint-filter-rule-allowlist": "4.0.0",
+    "textlint-filter-rule-comments": "1.3.0",
+    "textlint-plugin-asciidoc": "https://github.com/spacecubics/textlint-plugin-asciidoc/releases/download/v2026.10/textlint-plugin-asciidoc.tgz",
+    "textlint-rule-ja-space-between-half-and-full-width": "3.0.4",
+    "textlint-rule-preset-ja-technical-writing": "12.0.2",
+    "textlint-rule-preset-jtf-style": "3.0.3",
+    "textlint-rule-prh": "6.1.1",
+    "textlint-rule-terminology": "5.2.16"
+  }
+}

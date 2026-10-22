@@ -19,4 +19,4 @@ jobs:
 
       - name: Run codespell
         run: |
-          codespell --skip="*.svg" --ignore-words=.codespell-ignore --quiet-level=2
+          codespell --skip="*.svg,pnpm-lock.yaml" --ignore-words=.codespell-ignore --quiet-level=2

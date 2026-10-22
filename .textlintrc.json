@@ -1,0 +1,39 @@
+{
+  "plugins": {
+    "asciidoc": true
+  },
+  "rules": {
+    "preset-jtf-style": {
+      "3.1.1.全角文字と半角文字の間": false,
+      "3.3.かっこ類と隣接する文字の間のスペースの有無": false,
+      "4.2.7.コロン(：)": false,
+      "4.3.1.丸かっこ（）": false,
+      "4.3.2.大かっこ［］": false
+    },
+    "ja-space-between-half-and-full-width": {
+      "space": "always"
+    },
+    "preset-ja-technical-writing": {
+      "sentence-length": false,
+      "max-kanji-continuous-len": false,
+      "no-mix-dearu-desumasu": {
+        "preferInHeader": "",
+        "preferInBody": "ですます",
+        "preferInList": "ですます"
+      }
+    },
+    "terminology": {
+      "exclude": [
+        "iOS"
+      ]
+    }
+  },
+  "filters": {
+    "comments": true,
+    "allowlist": {
+      "allow": [
+        "/^[A-Za-z0-9][A-Za-z0-9 _+\\-/()]*::$/m"
+      ]
+    }
+  }
+}
