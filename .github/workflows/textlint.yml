@@ -1,0 +1,28 @@
+name: Textlint Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  textlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Install pnpm, Node.js and dependencies
+        uses: pnpm/setup@v3.1.1
+        with:
+          runtime: node@24
+          cache: true
+          require-lockfile: true
+
+      - name: Lint software documentation
+        run: pnpm run lint:ja:software
