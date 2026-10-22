@@ -12,11 +12,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
 
       - name: Install codespell
         run: pip install codespell
 
       - name: Run codespell
         run: |
-          codespell --skip="*.svg" --ignore-words=.codespell-ignore --quiet-level=2
+          codespell --skip="*.svg,pnpm-lock.yaml" --ignore-words=.codespell-ignore --quiet-level=2

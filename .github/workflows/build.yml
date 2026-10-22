@@ -12,19 +12,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: sc-docs-a1
 
       - name: Checkout sc-docs
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
         with:
           repository: spacecubics/sc-docs
           path: sc-docs
 
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.5.0
         with:
           node-version: '24'
 
