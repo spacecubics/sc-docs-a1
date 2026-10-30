@@ -1,5 +1,10 @@
 = 主な仕様
 
+IMPORTANT: Serial Interface、FPGA User IO および TRCH User IO について、お客様に決めていただく必要がある製品出荷時のハードウェアオプションがあります。
+ハードウェアオプションの詳細は、OBC Module の「インターフェース仕様」を参照してください。 +
+*(*1)* ハードウェアオプションでTRCH選択時に有効 +
+*(*2)* ハードウェアオプションでFPGA選択時に有効
+
 [cols="1,3",options="header"]
 |===
 | 項目 | 仕様
@@ -70,9 +75,7 @@ Space Cubics提案のUSBベース通信インターフェース準拠 (T.B.D.)
 
 | Serial Interface
 a|
-TRCH UART interface x 1
-
-* ハードウェアオプションによりFPGA接続へ変更可能
+(TRCH UART interface x 1) *(*1)*
 
 | FPGA User IO
 a|
@@ -80,13 +83,13 @@ User IO Group 1 x 16 pin (IO電圧可変)
 
 User IO Group 2 x 16 pin (IO電圧可変)
 
+(User IO Group 3 x 3 pin (3.3V固定)) *(*2)*
+
 User IO Group 4 x 6 pin, Cortex-M3 JTAG兼用 (3.3V固定)
 
 | TRCH User IO
 a|
-User IO Group 3 x 3 pin (3.3V固定)
-
-* ハードウェアオプションによりFPGA接続へ変更可能
+(User IO Group 3 x 3 pin (3.3V固定)) *(*1)*
 
 | 電源電圧
 | DC 5.0 V ±10%

@@ -1,5 +1,10 @@
 = Key Specifications
 
+IMPORTANT: There are hardware options for the Serial Interface, FPGA User IO, and TRCH User IO that need to be decided by the customer for the product shipment.
+For details on the hardware options, refer to the "Interface Specifications" of "OBC Module". +
+*(*1)* Valid when TRCH is selected in the hardware options +
+*(*2)* Valid when FPGA is selected in the hardware options
+
 [cols="1,3",options="header"]
 |===
 | Feature | Specification
@@ -70,9 +75,7 @@ Compliant with the USB-based communication interface proposed by Space Cubics (T
 
 | Serial Interface
 a|
-TRCH UART interface x 1
-
-* Connection to the FPGA can be configured based on the selected hardware options
+(TRCH UART interface x 1) *(*1)*
 
 | FPGA User IO
 a|
@@ -80,13 +83,13 @@ User IO Group 1 x 16 pin (variable IO voltage)
 
 User IO Group 2 x 16 pin (variable IO voltage)
 
+(User IO Group 3 x 3 pin (3.3 V fixed)) *(*2)*
+
 User IO Group 4 x 6 pin, Cortex-M3 JTAG compatible (3.3 V fixed)
 
 | TRCH User IO
 a|
-User IO Group 3 x 3 pin (3.3 V fixed)
-
-* Connection to the FPGA can be configured based on the selected hardware options
+(User IO Group 3 x 3 pin (3.3 V fixed)) *(*1)*
 
 | Power Supply Voltage
 | DC 5.0 V ±10%

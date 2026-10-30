@@ -145,6 +145,11 @@ User IO Group 3 及び WDOG_OUT信号は、ハードウェアオプションに�
 
 接続先が TRCHと FPGAで変わる事で、信号の電源ドメインも変わるため、IO Boardを設計する際は注意してください。
 
+＜選択例＞
+
+* TRCH選択： BBM開発フェーズでソフトウェア開発におけるデバッグ性を優先する場合
+* FPGA選択： IO Boardの仕様が確定し、IO Boardを制御するための入出力信号がより多く必要となる場合
+
 [width="80%",options="header"]
 |====
 | User IO| TRCH選択時の接続先| FPGA選択時の接続先

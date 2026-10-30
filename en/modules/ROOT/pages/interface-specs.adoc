@@ -145,6 +145,11 @@ The connection configuration is fixed at shipment from Space Cubics and cannot b
 
 Please note that the signal power domain varies depending on whether it is connected to TRCH or the FPGA, so take care when designing the IO board.
 
+<Selection examples>
+
+* when TRCH is selected: prioritize debugging for software development during the BBM development phase
+* when FPGA is selected: required when the IO board specifications are finalized and more IO signals are needed to control the IO board
+
 [width="80%",options="header"]
 |====
 | User IO | Endpoint when TRCH is selected | Endpoint when FPGA is selected
