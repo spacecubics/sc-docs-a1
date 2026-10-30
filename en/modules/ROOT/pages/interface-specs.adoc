@@ -143,23 +143,40 @@ If User IO operates at 1.6 V or the IO Board’s current consumption is 0.3 A or
 User IO Group 3 and WDOG_OUT signals can be routed to either TRCH or the FPGA, depending on hardware configuration.
 The connection configuration is fixed at shipment from Space Cubics and cannot be modified via software.
 
+For example, the signals shall be connected to TRCH in the following cases:
+
+* An external component monitors WDOG_OUT from TRCH.
+* An external component communicates with TRCH via UART.
+* External components are controlled or monitored via TRCH GPIO signals.
+* Debugging the internal state of TRCH via UART is required.
+
+If the 32 User IO signals provided by the FPGA are not enough, TRCH signals that are not used can be connected to the FPGA.
+
 Please note that the signal power domain varies depending on whether it is connected to TRCH or the FPGA, so take care when designing the IO board.
 
-[width="80%",options="header"]
+[width="80%",cols="1,2,2,2,2",options="header"]
 |====
-| User IO | Endpoint when TRCH is selected | Endpoint when FPGA is selected
+| CON1 pin No.
+| Endpoint pin name when TRCH is selected
+| Endpoint pin name when FPGA is selected
+| Hardware configuration when TRCH is selected
+| Hardware configuration when FPGA is selected
 
-| UIO3_00 | PIC16LF877 RD4/PSP4 | FPGA IO_L23P_T3_12 (pin: Y15)
-| UIO3_01 | PIC16LF877 RD5/PSP5 | FPGA IO_L23N_T3_12 (pin: AA15)
-| UIO3_02 | PIC16LF877 RD6/PSP6 | FPGA IO_L24P_T3_12 (pin: W14)
-| TRCH_UART_TX | PIC16LF877 RC6/TX/CK | FPGA IO_L24N_T3_12 (pin: W15)
-| TRCH_UART_RX | PIC16LF877 RC7/RX/DT | FPGA IO_L1N_T0_12 (pin: AE26)
-| WDOG_OUT | PIC16LF877 RE0/AN5/RD | FPGA IO_L16N_T2_12 (pin: AF18)
+| 25 | TRCH:RD4/PSP4 (UIO3_00)       | FPGA:IO_L23P_T3_12 (pin: Y15) (UIO04_06)  | R302:Mount, R458:NoMount | R302:NoMount, R458:Mount
+| 26 | TRCH:RD5/PSP5 (UIO3_01)       | FPGA:IO_L23N_T3_12 (pin: AA15) (UIO04_07) | R304:Mount, R459:NoMount | R304:NoMount, R459:Mount
+| 27 | TRCH:RD6/PSP6 (UIO3_02)       | FPGA:IO_L24P_T3_12 (pin: W14) (UIO04_08)  | R305:Mount, R460:NoMount | R305:NoMount, R460:Mount
+| 30 | TRCH:RC6/TX/CK (TRCH_UART_TX) | FPGA:IO_L24N_T3_12 (pin: W15) (UIO04_09)  | R325:Mount, R461:NoMount | R325:NoMount, R461:Mount
+| 31 | TRCH:RC7/RX/DT (TRCH_UART_RX) | FPGA:IO_L1N_T0_12 (pin: AE26) (UIO04_10)  | R457:Mount, R462:NoMount | R457:NoMount, R462:Mount
+| 36 | TRCH:RE0/AN5/RD (WDOG_OUT)    | FPGA:IO_L16N_T2_12 (pin: AF18) (UIO04_11) | R308:Mount, R463:NoMount | R308:NoMount, R463:Mount
 |====
 
 * Power domain
 ** when TRCH is selected: `VDD_3V3_SYS`
 ** when FPGA is selected: `VDD_3V3_IO`
+
+image::scobc-a1:ROOT:hardware_options.png[scaledwidth=100%]
+
+This diagram is an example when all TRCH is selected.
 
 === Debugger Connection
 
