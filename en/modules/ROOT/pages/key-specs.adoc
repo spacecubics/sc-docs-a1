@@ -1,5 +1,8 @@
 = Key Specifications
 
+IMPORTANT: Some features depend on the https://docs.spacecubics.com/scobc-a1/latest/interface-specs#hwopt[hardware options and IO connections] and are marked with &#x1f527;.
+Specify these options before shipment. These connections cannot be changed by software.
+
 [cols="1,3",options="header"]
 |===
 | Feature | Specification
@@ -70,9 +73,7 @@ Compliant with the USB-based communication interface proposed by Space Cubics (T
 
 | Serial Interface
 a|
-TRCH UART interface x 1
-
-* Connection to the FPGA can be configured based on the selected hardware options
+&#x1f527; TRCH UART interface x 1, available when TRCH is selected in the hardware options
 
 | FPGA User IO
 a|
@@ -80,13 +81,13 @@ User IO Group 1 x 16 pin (variable IO voltage)
 
 User IO Group 2 x 16 pin (variable IO voltage)
 
-User IO Group 4 x 6 pin, Cortex-M3 JTAG compatible (3.3 V fixed)
+User IO Group 4 x 6 pin (`UIO4_00` through `UIO4_05`), Cortex-M3 JTAG compatible (3.3 V fixed)
+
+&#x1f527; Optional User IO Group 4 up to 6 pin (`UIO4_06` through `UIO4_11`) (3.3 V fixed), available when FPGA is selected in the hardware options
 
 | TRCH User IO
 a|
-User IO Group 3 x 3 pin (3.3 V fixed)
-
-* Connection to the FPGA can be configured based on the selected hardware options
+&#x1f527; User IO Group 3 up to 4 pin (3.3 V fixed), available when TRCH is selected in the hardware options
 
 | Power Supply Voltage
 | DC 5.0 V ±10%

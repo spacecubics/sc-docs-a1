@@ -143,23 +143,40 @@ User IOを 1.6 Vで使用する場合や、IO Boardの回路の消費電流が 0
 User IO Group 3 及び WDOG_OUT信号は、ハードウェアオプションによって TRCHと接続するか FPGAと接続するか選択する事ができる信号です。
 接続状態は Space Cubicsからの出荷時に確定し、ソフトウェアで変更する事はできません。
 
+例えば、以下のような場合には、信号を TRCHに接続する必要があります。
+
+* 外部コンポーネントが TRCHからの WDOG_OUTを監視する場合
+* 外部コンポーネントが UARTを介して TRCHと通信する場合
+* 外部コンポーネントが TRCHの GPIO信号を介して制御または監視される場合
+* UARTを介して TRCHの内部状態をデバッグする必要がある場合
+
+FPGAが提供する 32本の User IO信号が不足する場合には、使用しない TRCH信号を FPGAに接続する事ができます。
+
 接続先が TRCHと FPGAで変わる事で、信号の電源ドメインも変わるため、IO Boardを設計する際は注意してください。
 
-[width="80%",options="header"]
+[width="80%",cols="1,2,2,2,2",options="header"]
 |====
-| User IO| TRCH選択時の接続先| FPGA選択時の接続先
+| CON1 pin No. 
+| 接続先のピン名 (TRCH選択時)
+| 接続先のピン名 (FPGA選択時)
+| ハードウェア構成 (TRCH選択時)
+| ハードウェア構成 (FPGA選択時)
 
-| UIO3_00| PIC16LF877 RD4/PSP4| FPGA IO_L23P_T3_12 (pin: Y15)
-| UIO3_01| PIC16LF877 RD5/PSP5| FPGA IO_L23N_T3_12 (pin: AA15)
-| UIO3_02| PIC16LF877 RD6/PSP6| FPGA IO_L24P_T3_12 (pin: W14)
-| TRCH_UART_TX| PIC16LF877 RC6/TX/CK| FPGA IO_L24N_T3_12 (pin: W15)
-| TRCH_UART_RX| PIC16LF877 RC7/RX/DT| FPGA IO_L1N_T0_12 (pin: AE26)
-| WDOG_OUT| PIC16LF877 RE0/AN5/RD| FPGA IO_L16N_T2_12 (pin: AF18)
+| 25 | TRCH:RD4/PSP4 (UIO3_00)       | FPGA:IO_L23P_T3_12 (pin: Y15) (UIO04_06)  | R302:Mount, R458:NoMount | R302:NoMount, R458:Mount
+| 26 | TRCH:RD5/PSP5 (UIO3_01)       | FPGA:IO_L23N_T3_12 (pin: AA15) (UIO04_07) | R304:Mount, R459:NoMount | R304:NoMount, R459:Mount
+| 27 | TRCH:RD6/PSP6 (UIO3_02)       | FPGA:IO_L24P_T3_12 (pin: W14) (UIO04_08)  | R305:Mount, R460:NoMount | R305:NoMount, R460:Mount
+| 30 | TRCH:RC6/TX/CK (TRCH_UART_TX) | FPGA:IO_L24N_T3_12 (pin: W15) (UIO04_09)  | R325:Mount, R461:NoMount | R325:NoMount, R461:Mount
+| 31 | TRCH:RC7/RX/DT (TRCH_UART_RX) | FPGA:IO_L1N_T0_12 (pin: AE26) (UIO04_10)  | R457:Mount, R462:NoMount | R457:NoMount, R462:Mount
+| 36 | TRCH:RE0/AN5/RD (WDOG_OUT)    | FPGA:IO_L16N_T2_12 (pin: AF18) (UIO04_11) | R308:Mount, R463:NoMount | R308:NoMount, R463:Mount
 |====
 
 * 電源ドメイン
 ** TRCH選択時: `VDD_3V3_SYS`
 ** FPGA選択時: `VDD_3V3_IO`
+
+image::scobc-a1:ROOT:user_io_vdd33.png[scaledwidth=100%]
+
+この図は、全てTRCHを選択した場合の例です。
 
 === デバッガ接続
 
