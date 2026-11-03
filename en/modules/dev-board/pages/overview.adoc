@@ -11,7 +11,7 @@
     |FPGA JTAG Interface x1
     |UIO Interface x4 (UIO1 16-pin, UIO2 16-pin, UIO3 8-pin, UIO4 6-pin)
     |CAN Interface x1
-    |SC Bus Interface x2
+    |SC Bus Interface x1 (USB Host or USB Device)
     |Main Power Supply x3 (DC Jack x1, Block Terminal x2)
     |UIO Power Supply x2 (Block Terminal x2)
     |Power Output x4 (VDD_UIO1, VDD_UIO2, VDD_3V3_SYS, VDD_3V3_IO)
