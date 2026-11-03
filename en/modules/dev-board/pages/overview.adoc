@@ -52,12 +52,12 @@ image::Appearance.svg[Appearance.svg]
 |15 |Main Power Connector |A terminal block allowing the user to supply main power using a source other than the AC adapter.
 |===
 
-== Block Diagram
-The block diagram of the Dev Board is shown below. +
-A detailed block diagram for the power supply is shown separately.
+== Functional Block Diagram
+The functional block diagram of the Dev Board is shown below.
 
 image::Function_Block_diagram.svg[Function_Block_diagram.svg]
 
-The power supply block diagram is shown below.
+== Power Supply Block Diagram
+The power supply block diagram of the Dev Board is shown below.
 
 image::Power_Block_diagram.svg[Power_Block_diagram.svg]
