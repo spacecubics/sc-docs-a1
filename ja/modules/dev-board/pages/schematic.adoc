@@ -1,4 +1,5 @@
 = 回路図
+:page-aliases: design-info.adoc
 
 [CAUTION]
 ====

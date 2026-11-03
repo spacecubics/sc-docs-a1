@@ -1,4 +1,5 @@
 = Schematic Diagram
+:page-aliases: design-info.adoc
 
 [CAUTION]
 ====
