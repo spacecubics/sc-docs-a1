@@ -52,12 +52,12 @@ image::scobc-a1:dev-board:Appearance.svg[Appearance.svg]
 |15 |主電源コネクタ |ユーザーがACアダプタ以外で主電源を供給できる端子台です。
 |===
 
-== ブロック図
-Dev Boardのブロック図を以下に示します。 +
-電源に関する詳細なブロック図は別途示します。
+== 機能ブロック図
+Dev Boardの機能ブロック図を以下に示します。
 
 image::scobc-a1:dev-board:Function_Block_diagram.svg[Function_Block_diagram.svg]
 
-電源のブロック図を以下に示します。
+== 電源ブロック図
+Dev Boardの電源ブロック図を以下に示します。
 
 image::scobc-a1:dev-board:Power_Block_diagram.svg[Power_Block_diagram.svg]
