@@ -6,4 +6,4 @@
 * xref:electrical-specs.adoc[]
 * xref:interface-specs.adoc[]
 * xref:board-layout.adoc[]
-* xref:design-info.adoc[]
+* xref:schematic.adoc[]

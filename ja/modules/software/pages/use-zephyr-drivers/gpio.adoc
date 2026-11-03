@@ -170,7 +170,7 @@ GPIO ピンが MOSFET ゲートを HIGH に駆動すると、MOSFET が ON に�
 image::scobc-a1:software:user-led.webp[User LED Circuit]
 
 Development Board の回路図は
-xref:dev-board:design-info.adoc[] で確認できます (回路図ドキュメント内の
+xref:dev-board:schematic.adoc[] で確認できます (回路図ドキュメント内の
 LED 制御回路を参照してください)。
 
 この設定により、Zephyr は GPIO 値を正しく解釈できるため、論理値 `1` が LED ON、

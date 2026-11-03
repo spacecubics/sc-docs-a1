@@ -170,7 +170,7 @@ The User LED driving circuit is something like this:
 image::scobc-a1:software:user-led.webp[User LED Circuit]
 
 You can check the Development Board schematic at
-xref:dev-board:design-info.adoc[] (see the LED control circuit
+xref:dev-board:schematic.adoc[] (see the LED control circuit
 in the schematic document):
 
 This configuration allows Zephyr to interpret the GPIO value correctly, so that a logical `1`
