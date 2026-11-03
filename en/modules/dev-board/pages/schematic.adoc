@@ -1,10 +1,8 @@
-= Design Information
-
-== Schematic Diagram
+= Schematic Diagram
 
 * xref:attachment$SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
 
-=== Schematic Revision History
+== Schematic Revision History
 [width="100%",cols="1,2,1,4",options="header",]
 |===
 |Date |Part No. |Rev. |Description
