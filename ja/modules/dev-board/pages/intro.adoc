@@ -9,3 +9,8 @@ SC-OBC Module A1 Development Board は、SC-OBC Module A1の初期の開発を�
 * CAN、User IOなどの通信インターフェース
 
 また、User IOを用いて構築する回路を容易に実装する事を目的とした Universal Areaを備え、初期のシステム検討や BBM開発を手助けします。
+
+[NOTE]
+====
+写真ではUniversal Areaにピンソケットが実装されていますが、出荷時には実装されていません。評価環境に応じて、お客様自身でピンソケットをはんだ付けしてください。
+====

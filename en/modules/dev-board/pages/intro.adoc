@@ -9,3 +9,8 @@ The SC-OBC Module A1 Development Board is designed to facilitate the user's init
 * Communication interfaces including Controller Area Network (CAN) and User IO interfaces
 
 Additionally, it features a Universal Area designed to facilitate the implementation of circuits built with User IO, aiding in initial system evaluation and BBM development.
+
+[NOTE]
+====
+The photograph shows pin sockets installed in the Universal Area, but they are not installed at shipment. Customers must solder the pin sockets themselves as needed for their evaluation environment.
+====
