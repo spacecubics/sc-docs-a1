@@ -128,7 +128,7 @@ FPGAの IO電源 (VCCO)は、FPGAの電源投入シーケンスに従い投入�
 OBC Moduleが出力する VDD_3V3信号が Highになった時のみ電圧を印加する事で、FPGAの電源シーケンスを守る事ができます。
 
 以下の回路構成例を参考に、回路を構成してください。
-回路例は User IO Group 1の場合の例のため、User Io Group 2に適用する場合、ピン番号などを読み替えてください。
+回路例は User IO Group 1の場合の例のため、User IO Group 2に適用する場合、ピン番号などを読み替えてください。
 
 image::scobc-a1:ROOT:user_io_vdd33.png[scaledwidth=100%]
 
