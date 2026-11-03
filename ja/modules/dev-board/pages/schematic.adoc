@@ -17,7 +17,7 @@ Development Board は、地上での開発および評価のみを目的とし�
 また、適用法令を遵守し、第三者の知的財産権を侵害しないことも確認してください。
 ====
 
-[width="100%",cols="1,2,1,4,4",options="header",]
+[width="100%",cols="10,16,4,35,35",options="header",]
 |===
 |Date |Part No. |Rev. |Description |File
 

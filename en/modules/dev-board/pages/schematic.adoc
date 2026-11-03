@@ -20,7 +20,7 @@ You must also comply with applicable laws and ensure that third-party
 intellectual property rights are not infringed.
 ====
 
-[width="100%",cols="1,2,1,4,4",options="header",]
+[width="100%",cols="10,16,4,35,35",options="header",]
 |===
 |Date |Part No. |Rev. |Description |File
 
