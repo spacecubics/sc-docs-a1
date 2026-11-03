@@ -5,25 +5,25 @@
 [width="100%",cols="1,3",options="header",]
 |===
 |Feature |Description
-|Interface |OBC Interface x1
-| |TRCH ICSP Interface x1
-| |DEBUG Interface x1 (FPGA JTAG, CPU JTAG, FPGA Console, TRCH Console)
-| |FPGA JTAG Interface x1
-| |UIO Interface x4 (UIO1 16-pin, UIO2 16-pin, UIO3 8-pin, UIO4 6-pin)
-| |CAN Interface x1
-| |SC Bus Interface x2
-| |Main Power Supply x3 (DC Jack x1, Block Terminal x2)
-| |UIO Power Supply x2 (Block Terminal x2)
-| |Power Output x4 (VDD_UIO1, VDD_UIO2, VDD_3V3_SYS, VDD_3V3_IO)
+.10+|Interface |OBC Interface x1
+    |TRCH ICSP Interface x1
+    |DEBUG Interface x1 (FPGA JTAG, CPU JTAG, FPGA Console, TRCH Console)
+    |FPGA JTAG Interface x1
+    |UIO Interface x4 (UIO1 16-pin, UIO2 16-pin, UIO3 8-pin, UIO4 6-pin)
+    |CAN Interface x1
+    |SC Bus Interface x2
+    |Main Power Supply x3 (DC Jack x1, Block Terminal x2)
+    |UIO Power Supply x2 (Block Terminal x2)
+    |Power Output x4 (VDD_UIO1, VDD_UIO2, VDD_3V3_SYS, VDD_3V3_IO)
 |Switch |Slide Switch for Main Power Supply x1, User Switch x1
 |LED |Power LED x8, User LED x1
 |Temperature Sensor |User Temperature Sensor x1 (Texas Instruments TMP175)
 |Power Supply |DC 5V +/-5%
 |Operation Temperature |10~40℃
-|Protection |Main Power Supply OVP (Over Voltage Protection) x2
-| |VDD_3V3_SYS OCP (Over Current Protection) x1
-| |SC Bus VBUS OCP (Over Current Protection) x1
-| |ESD Protection (Each Terminal)
+.4+|Protection |Main Power Supply OVP (Over Voltage Protection) x2
+   |VDD_3V3_SYS OCP (Over Current Protection) x1
+   |SC Bus VBUS OCP (Over Current Protection) x1
+   |ESD Protection (Each Terminal)
 |Board Size |200 x 130 mm
 |===
 
