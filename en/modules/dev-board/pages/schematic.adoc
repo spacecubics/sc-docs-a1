@@ -1,10 +1,13 @@
 = Schematic Diagram
 
-* xref:attachment$SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
-
-== Schematic Revision History
-[width="100%",cols="1,2,1,4",options="header",]
+[width="100%",cols="1,2,1,4,4",options="header",]
 |===
-|Date |Part No. |Rev. |Description
-|2025/9/24 |SC-EVB-A1001 |1 |Initial Release
+|Date |Part No. |Rev. |Description |File
+
+|2025/9/24
+|SC-EVB-A1001
+|1
+|Initial Release
+|xref:attachment$SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
+
 |===
