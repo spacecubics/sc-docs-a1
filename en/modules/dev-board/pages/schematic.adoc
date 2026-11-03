@@ -1,5 +1,25 @@
 = Schematic Diagram
 
+[CAUTION]
+====
+The schematics on this page are provided "as is" for reference only. Space
+Cubics Inc. does not guarantee their accuracy, completeness, safety, or fitness
+for a particular purpose. To the fullest extent permitted by applicable law,
+Space Cubics Inc. assumes no liability for any malfunction, accident,
+infringement of third-party intellectual property rights, or other loss or
+damage resulting from the use of these schematics or the manufacture,
+modification, or application of circuits based on them.
+
+The Development Board is designed only for development and evaluation on the
+ground and uses general-purpose consumer electronic components. Space Cubics
+Inc. has not evaluated these components for suitability in space environments.
+
+If you use these schematics or manufacture circuits based on them, you are
+responsible for checking their safety and fitness for the intended purpose.
+You must also comply with applicable laws and ensure that third-party
+intellectual property rights are not infringed.
+====
+
 [width="100%",cols="1,2,1,4,4",options="header",]
 |===
 |Date |Part No. |Rev. |Description |File
