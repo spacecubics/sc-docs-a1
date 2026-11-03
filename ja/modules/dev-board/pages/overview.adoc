@@ -27,8 +27,8 @@
 |Board Size |200 x 130 mm
 |===
 
-== 外観
-Dev Boardの外観を以下に示します。
+== 各部の名称と機能
+Dev Boardの各部の名称と機能を以下に示します。
 
 image::scobc-a1:dev-board:Appearance.svg[Appearance.svg]
 

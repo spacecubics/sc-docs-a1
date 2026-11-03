@@ -27,8 +27,8 @@
 |Board Size |200 x 130 mm
 |===
 
-== Appearance
-The appearance of the Dev Board is shown below.
+== Component Names and Functions
+The names and functions of the Dev Board components are shown below.
 
 image::Appearance.svg[Appearance.svg]
 
