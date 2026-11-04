@@ -1,6 +1,8 @@
 = 回路図
 :page-aliases: design-info.adoc
 
+include::scobc-a1:dev-board:partial$link-attributes.adoc[]
+
 [CAUTION]
 ====
 本ページに掲載する回路図は、参考情報として現状有姿で提供しています。
@@ -26,6 +28,6 @@ Development Board は、地上での開発および評価のみを目的とし�
 |SC-EVB-A1001
 |1
 |Initial Release
-|https://downloads.spacecubics.com/products/scobc-a1/documents/SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
+|{sc-evb-a1001-schematic-rev1}[SC-EVB-A1001_Schematic_Rev1.pdf]
 
 |===

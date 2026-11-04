@@ -1,0 +1,1 @@
+:sc-evb-a1001-schematic-rev1: https://downloads.spacecubics.com/products/scobc-a1/documents/SC-EVB-A1001_Schematic_Rev1.pdf

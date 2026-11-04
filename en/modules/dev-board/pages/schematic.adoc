@@ -1,6 +1,8 @@
 = Schematic Diagram
 :page-aliases: design-info.adoc
 
+include::partial$link-attributes.adoc[]
+
 [CAUTION]
 ====
 The schematics on this page are provided "as is" for reference only. Space
@@ -29,6 +31,6 @@ intellectual property rights are not infringed.
 |SC-EVB-A1001
 |1
 |Initial Release
-|https://downloads.spacecubics.com/products/scobc-a1/documents/SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
+|{sc-evb-a1001-schematic-rev1}[SC-EVB-A1001_Schematic_Rev1.pdf]
 
 |===
