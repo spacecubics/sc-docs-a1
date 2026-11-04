@@ -9,7 +9,7 @@ Use a socket with a mating height of 5 mm, 5.5 mm, or 8 mm to connect with the c
 
 Refer to the Board Layout Diagram for connector locations.
 
-[width="80%",options="header"]
+[width="100%",cols="2,3,2,3,6",options="header"]
 |====
 | Pin Number | Pin Name | I/O | Power Domain | Description
 
@@ -55,7 +55,7 @@ Refer to the Board Layout Diagram for connector locations.
 | 40 | VDD_UIO1 | Power | - | Power supply (VDD_UIO1)
 |====
 
-[width="80%",options="header"]
+[width="100%",cols="2,3,2,3,6",options="header"]
 |====
 | Pin Number | Pin Name | I/O Type | Power Domain | Description
 
@@ -185,7 +185,7 @@ TRCH software can be programmed using Microchip’s MPLAB and the PICkit4 debugg
 
 Connect MPLAB PICkit4 to the following pins on the OBC Module.
 
-[width="80%",options="header"]
+[width="60%",options="header"]
 |====
 | MPLAB PICkit4 | OBC Module CON1 Pin No.
 
@@ -206,7 +206,7 @@ FPGA programming and in-circuit debugging can be performed using the Xilinx Plat
 
 Connect the USB II Platform Cable to the designated pins on the OBC module as shown below.
 
-[width="80%",options="header"]
+[width="60%",options="header"]
 |====
 | Platform cable USB II | OBC Module CON1 Pin No.
 

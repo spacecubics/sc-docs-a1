@@ -9,7 +9,7 @@ IO Boardインターフェースは、OBC Moduleと IO Boardを接続するた�
 
 コネクタの位置については、形状図を参照してください。
 
-[width="80%",options="header"]
+[width="100%",cols="2,3,2,3,6",options="header"]
 |====
 | ピン番号| ピン名| I/O| 電源ドメイン| 説明
 
@@ -55,7 +55,7 @@ IO Boardインターフェースは、OBC Moduleと IO Boardを接続するた�
 | 40| VDD_UIO1| Power| -| 電源(VDD_UIO1)
 |====
 
-[width="80%",options="header"]
+[width="100%",cols="2,3,2,3,6",options="header"]
 |====
 | ピン番号| ピン名| I/O| 電源ドメイン| 説明
 
@@ -185,7 +185,7 @@ TRCHの ソフトウェアの書き込みは Microchip製 MPLAB PICkit4により
 
 MPLAB PICkit4は、OBC Moduleの以下のピンに接続してください。
 
-[width="80%",options="header"]
+[width="60%",options="header"]
 |====
 | MPLAB PICkit4| OBC Module CON1 Pin No.
 
@@ -206,7 +206,7 @@ FPGAの書き込みや In Circuit Debugは Xilinx製 Platform cable USB IIによ
 
 Platform cable USB IIは、OBC Moduleの以下のピンに接続してください。
 
-[width="80%",options="header"]
+[width="60%",options="header"]
 |====
 | Platform cable USB II| OBC Module CON1 Pin No.
 
