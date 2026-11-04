@@ -26,6 +26,6 @@ Development Board は、地上での開発および評価のみを目的とし�
 |SC-EVB-A1001
 |1
 |Initial Release
-|xref:scobc-a1:dev-board:attachment$SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
+|https://downloads.spacecubics.com/products/scobc-a1/documents/SC-EVB-A1001_Schematic_Rev1.pdf[SC-EVB-A1001_Schematic_Rev1.pdf]
 
 |===
