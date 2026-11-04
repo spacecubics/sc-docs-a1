@@ -694,14 +694,14 @@ image::scobc-a1:dev-board:SW1_Status.svg[SW1_Status.svg]
 |Bit番号 |ピン番号 |ピン名称 |I/O |電源ドメイン |説明
 |1 |1,20 |TRCH_UART_RX / UIO4_10 |Input |VDD_3V3_SYS / VDD_3V3_IO .2+|当該信号を IC2 へ接続。 TRCH の UART 信号を CON2 経由で入出力する場合は接続する。当該信号は CON10に常時接続されている。 (ON:IC2に接続 / OFF:IC2とは切断)
 |2 |2,19 |TRCH_UART_TX / UIO4_09 |Input |VDD_3V3_SYS / VDD_3V3_IO
-|3 |3,18 |UIO4_04 |In/Out |VDD_3V3_IO .2+|当該信号を IC2 へ接続。当該信号を CON2 経由で入出力する場合は接続する。当該信号は常に CON12 に接続さている。 (ON:IC2に接続 / OFF:IC2とは切断) (※出荷イメージでは、UIO4_03,04 に SoftCore CPUのシリアルコンソールが割り当っている)
+|3 |3,18 |UIO4_04 |In/Out |VDD_3V3_IO .2+|当該信号を IC2 へ接続。当該信号を CON2 経由で入出力する場合は接続する。当該信号は CON12 に常時接続されている。 (ON:IC2に接続 / OFF:IC2とは切断) (※出荷イメージでは、UIO4_03,04 に SoftCore CPUのシリアルコンソールが割り当っている)
 |4 |4,17 |UIO4_03 |In/Out |VDD_3V3_IO
-|5 |5,16 |UIO4_02 |In/Out |VDD_3V3_IO .2+|当該信号を IC2 へ接続。当該信号を CON2 経由で入出力する場合は接続する。当該信号は常に CON12 に接続さている。 (ON:IC2に接続 / OFF:IC2とは切断) (※出荷イメージでは、UIO4_01,02 に SoftCore CPU JTAG が割り当っている)
+|5 |5,16 |UIO4_02 |In/Out |VDD_3V3_IO .2+|当該信号を IC2 へ接続。当該信号を CON2 経由で入出力する場合は接続する。当該信号は CON12 に常時接続されている。 (ON:IC2に接続 / OFF:IC2とは切断) (※出荷イメージでは、UIO4_01,02 に SoftCore CPU JTAG が割り当っている)
 |6 |6,15 |UIO4_01 |In/Out |VDD_3V3_IO
-|7 |7,14 |I2C_EXT_SCL |Output |VDD_3V3_SYS .2+|当該信号を IC7 へ接続。当該信号でユーザー温度センサーから温度データ取得する場合は接続する。当該信号は常に CON10 に接続されている。 (ON:IC7に接続 / OFF:IC7とは切断)
+|7 |7,14 |I2C_EXT_SCL |Output |VDD_3V3_SYS .2+|当該信号を IC7 へ接続。当該信号でユーザー温度センサーから温度データ取得する場合は接続する。当該信号は CON10 に常時接続されている。 (ON:IC7に接続 / OFF:IC7とは切断)
 |8 |8,13 |I2C_EXT_SDA |In/Out |VDD_3V3_SYS
-|9 |9,12 |UIO2_14 |In/Out |VDD_UIO2 |当該信号を 1kΩ でプルダウンする。当該信号で LOW を検出したい場合は接続する。当該信号は常に CON8 に接続さている。 (ON:プルダウン / OFF:FPGA によるプルアップを期待)
-|10 |10,11 |UIO2_15 |In/Out |VDD_UIO2 |当該信号を LED11 へ接続。当該信号でユーザーLEDを制御する場合は接続する。当該信号は常に CON8 に接続さている。 (ON:LED11に接続 / OFF:LED11とは切断)
+|9 |9,12 |UIO2_14 |In/Out |VDD_UIO2 |当該信号を 1kΩ でプルダウンする。当該信号で LOW を検出したい場合は接続する。当該信号は CON8 に常時接続されている。 (ON:プルダウン / OFF:FPGA によるプルアップを期待)
+|10 |10,11 |UIO2_15 |In/Out |VDD_UIO2 |当該信号を LED11 へ接続。当該信号でユーザーLEDを制御する場合は接続する。当該信号は CON8 に常時接続されている。 (ON:LED11に接続 / OFF:LED11とは切断)
 |===
 
 ---
