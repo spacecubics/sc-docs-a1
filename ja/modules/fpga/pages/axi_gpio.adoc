@@ -12,7 +12,7 @@ AXI GPIO は、General Purpose IOコアです。
 |AXI GPIO | 0x5009_0000
 |===
 
-IPコアの詳細やレジスタの仕様については、AMD (旧Xilinx)が提供する https://docs.amd.com/v/u/en-US/pg144-axi-gpio[PG144 AXI GPIO LogicCore IP Product Guide]を参照してください。
+IPコアの詳細やレジスタの仕様については、AMD (旧Xilinx)が提供する https://docs.amd.com/r/en-US/pg144-axi-gpio[PG144 AXI GPIO LogicCore IP Product Guide]を参照してください。
 
 AXI GPIOに設定されているパラメータは以下の通りです。
 
