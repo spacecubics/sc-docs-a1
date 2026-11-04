@@ -61,11 +61,11 @@ Refer to the Board Layout Diagram for connector locations.
 
 | 41 | VDD_UIO2 | Power | - | Power supply (VDD_UIO2)
 | 42 | VDD_UIO2 | Power | - | Power supply (VDD_UIO2)
-| 43 | UIO4_05 | Inout | VDD_3V3_IO | User IO4 Bit 5 / CM3 NTRST signal is connected to FPGA IO_0_13 (pin: U24).
-| 44 | UIO4_04 | Inout | VDD_3V3_IO | User IO4 Bit 4 / CM3 TDO and SWO signals are connected to FPGA IO_L16P_T2_13 (pin: W20).
-| 45 | UIO4_03 | Inout | VDD_3V3_IO | User IO4 Bit 3 / CM3 TDI signal is connected to FPGA IO_L16N_T2_13 (pin: Y20).
-| 46 | UIO4_02 | Inout | VDD_3V3_IO | User IO4 Bit 2 / CM3 TMS and SWDIO signals are connected to FPGA IO_L14N_T2_SRCC_13 (pin: Y21).
-| 47 | UIO4_01 | Inout | VDD_3V3_IO | User IO4 Bit 1 / CM3 TCK and SWCLK signals are connected to FPGA IO_L14P_T2_SRCC_13 (pin: W21).
+| 43 | UIO4_05 | Inout | VDD_3V3_IO | User IO4 Bit 5 signal is connected to FPGA IO_0_13 (pin: U24).
+| 44 | UIO4_04 | Inout | VDD_3V3_IO | User IO4 Bit 4 / FPGA UART Console RX signal is connected to FPGA IO_L16P_T2_13 (pin: W20).
+| 45 | UIO4_03 | Inout | VDD_3V3_IO | User IO4 Bit 3 / FPGA UART Console TX signal is connected to FPGA IO_L16N_T2_13 (pin: Y20).
+| 46 | UIO4_02 | Inout | VDD_3V3_IO | User IO4 Bit 2 / CM3 SWDIO signal is connected to FPGA IO_L14N_T2_SRCC_13 (pin: Y21).
+| 47 | UIO4_01 | Inout | VDD_3V3_IO | User IO4 Bit 1 / CM3 SWCLK signal is connected to FPGA IO_L14P_T2_SRCC_13 (pin: W21).
 | 48 | GND| Power | - | Ground
 | 49 | ICSP_PGD | Inout | VDD_3V3_SYS | PIC PGD signal is connected to RB7 / PGD of PIC16LF877.
 | 50 | ICSP_PGC | Inout | VDD_3V3_SYS | PIC PGC signal is connected to RB6 / PGC of PIC16LF877.
