@@ -147,7 +147,7 @@ The channel assignments for the FT4232H are as follows:
 |===
 | Channel | Function
 | A       | FPGA JTAG (Equivalent functionality to AMD Platform cable USB II)
-| B       | CPU JTAG
+| B       | CPU Serial Wire Debug
 | C       | FPGA UART
 | D       | TRCH UART
 |===
@@ -690,7 +690,7 @@ image::SW1_Status.svg[SW1_Status.svg]
 |2 |2,19 |TRCH_UART_TX / UIO4_09 |Input |VDD_3V3_SYS / VDD_3V3_IO
 |3 |3,18 |UIO4_04 |In/Out |VDD_3V3_IO .2+|Communication to FPGA UART via USB interface (CON2) (ON: Enabled / OFF: Disabled) (※When FPGA UART is assigned to UIO4_03,04)
 |4 |4,17 |UIO4_03 |In/Out |VDD_3V3_IO
-|5 |5,16 |UIO4_02 |In/Out |VDD_3V3_IO .2+|Communication to CPU JTAG via USB interface (CON2) (ON: Enabled / OFF: Disabled) (※When CPU JTAG is assigned to UIO4_01,02)
+|5 |5,16 |UIO4_02 |In/Out |VDD_3V3_IO .2+|Communication to CPU Serial Wire Debug via USB interface (CON2) (ON: Enabled / OFF: Disabled) (※When CPU Serial Wire Debug Interface is assigned to UIO4_01,02)
 |6 |6,15 |UIO4_01 |In/Out |VDD_3V3_IO
 |7 |7,14 |I2C_EXT_SCL |Output |VDD_3V3_SYS .2+|Temperature data acquisition from user temperature sensor via external I2C (ON: Enabled / OFF: Disabled)
 |8 |8,13 |I2C_EXT_SDA |In/Out |VDD_3V3_SYS
