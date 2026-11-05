@@ -685,10 +685,14 @@ SW1 is the switch that controls the connection between the OBC and the following
 * User-configurable LED circuit (User LED)
 
 In the default configuration, only Bits 3 and 4 are ON; all other bits are OFF. Manually switch the bit that corresponds to the circuit you wish to use. +
-Use a pointed tool, like tweezers, as it is difficult to operate the switch with your fingers. +
 The signal line connecting the OBC to SW1 also branches out to the Universal Area. Please be careful when using signal lines connected to the above circuits in the Universal Area.
 
 Parts mounted: 219-10MSTR (CTS Electrocomponents)
+
+[NOTE]
+====
+When changing the switch settings, use a pointed tool such as tweezers because the switches are difficult to operate with your fingers.
+====
 
 image::SW1_Status.svg[SW1_Status.svg]
 
