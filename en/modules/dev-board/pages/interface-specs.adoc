@@ -92,11 +92,6 @@ Installed Connector: AXK5S80047YG (Panasonic)
 |38 |VDD_3V3_IO_P38 |Power |- |3.3V power from OBC (VDD_3V3_IO)
 |39 |VDD_UIO1_P39 |Power |- |Power supply for UIO1 (VDD_UIO1)
 |40 |VDD_UIO1_P40 |Power |- |Power supply for UIO1 (VDD_UIO1)
-|===
-
-[width="100%",cols="1,2,1,2,3",options="header",]
-|===
-|Pin Number |Pin Name |I/O |Power Domain |Description
 |41 |VDD_UIO2_P41 |Power |- |Power supply for UIO2 (VDD_UIO2)
 |42 |VDD_UIO2_P42 |Power |- |Power supply for UIO2 (VDD_UIO2)
 |43 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 Bit 5 signal
