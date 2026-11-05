@@ -95,11 +95,6 @@ CON1はOBCとの接続インターフェースです。
 |38 |VDD_3V3_IO_P38 |Power |- |OBCからの3.3V電源 (VDD_3V3_IO)
 |39 |VDD_UIO1_P39 |Power |- |UIO1用の電源 (VDD_UIO1)
 |40 |VDD_UIO1_P40 |Power |- |UIO1用の電源 (VDD_UIO1)
-|===
-
-[width="100%",cols="1,2,1,2,3",options="header",]
-|===
-|ピン番号 |ピン名 |I/O |電源ドメイン |説明
 |41 |VDD_UIO2_P41 |Power |- |UIO2用の電源 (VDD_UIO2)
 |42 |VDD_UIO2_P42 |Power |- |UIO2用の電源 (VDD_UIO2)
 |43 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 Bit 5信号
