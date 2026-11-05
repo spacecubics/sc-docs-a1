@@ -36,6 +36,11 @@ image::CON1_Insertion.svg[CON1_Insertion.svg]
 Similarly, when removing the connector, do so perpendicular to the board. +
 For the OBC connection interface (CON1), refer to the interface specifications described later.
 
+[CAUTION]
+====
+The connector used for CON1 (Panasonic AXK5S80047YG) is rated for only 50 mating cycles, so avoid unnecessary insertion and removal.
+====
+
 == Connections
 The following shows how to connect the Dev Board and peripheral devices.
 

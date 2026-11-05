@@ -36,6 +36,11 @@ image::scobc-a1:dev-board:CON1_Insertion.svg[CON1_Insertion.svg]
 また抜去する場合も同様に、基板に対して垂直に行ってください。 +
 OBC接続インターフェース（CON1）については、後述するインターフェース仕様を参照してください。
 
+[CAUTION]
+====
+CON1に使用されているコネクタ（Panasonic AXK5S80047YG）の挿抜寿命は50回と短いため、不要な挿抜は避けてください。
+====
+
 == 接続方法
 Dev Boardと周辺機器との接続例を以下に示します。
 
