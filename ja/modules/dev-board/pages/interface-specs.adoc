@@ -251,22 +251,22 @@ OBC上のFPGAへ接続されており、ユーザーが自由に使用できる�
 [cols="1,2,1,2,3",options="header",]
 |===
 |ピン番号 |ピン名称 |I/O |電源ドメイン |説明
-|1 |UIO1_00 |In/Out |VDD_UIO1 |UIO1 入出力
-|2 |UIO1_01 |In/Out |VDD_UIO1 |UIO1 入出力
-|3 |UIO1_02 |In/Out |VDD_UIO1 |UIO1 入出力
-|4 |UIO1_03 |In/Out |VDD_UIO1 |UIO1 入出力
-|5 |UIO1_04 |In/Out |VDD_UIO1 |UIO1 入出力
-|6 |UIO1_05 |In/Out |VDD_UIO1 |UIO1 入出力
-|7 |UIO1_06 |In/Out |VDD_UIO1 |UIO1 入出力
-|8 |UIO1_07 |In/Out |VDD_UIO1 |UIO1 入出力
-|9 |UIO1_08 |In/Out |VDD_UIO1 |UIO1 入出力
-|10 |UIO1_09 |In/Out |VDD_UIO1 |UIO1 入出力
-|11 |UIO1_10 |In/Out |VDD_UIO1 |UIO1 入出力
-|12 |UIO1_11 |In/Out |VDD_UIO1 |UIO1 入出力
-|13 |UIO1_12 |In/Out |VDD_UIO1 |UIO1 入出力
-|14 |UIO1_13 |In/Out |VDD_UIO1 |UIO1 入出力
-|15 |UIO1_14 |In/Out |VDD_UIO1 |UIO1 入出力
-|16 |UIO1_15 |In/Out |VDD_UIO1 |UIO1 入出力
+|1 |UIO1_00 |In/Out |VDD_UIO1 |UIO1 Bit 0 入出力
+|2 |UIO1_01 |In/Out |VDD_UIO1 |UIO1 Bit 1 入出力
+|3 |UIO1_02 |In/Out |VDD_UIO1 |UIO1 Bit 2 入出力
+|4 |UIO1_03 |In/Out |VDD_UIO1 |UIO1 Bit 3 入出力
+|5 |UIO1_04 |In/Out |VDD_UIO1 |UIO1 Bit 4 入出力
+|6 |UIO1_05 |In/Out |VDD_UIO1 |UIO1 Bit 5 入出力
+|7 |UIO1_06 |In/Out |VDD_UIO1 |UIO1 Bit 6 入出力
+|8 |UIO1_07 |In/Out |VDD_UIO1 |UIO1 Bit 7 入出力
+|9 |UIO1_08 |In/Out |VDD_UIO1 |UIO1 Bit 8 入出力
+|10 |UIO1_09 |In/Out |VDD_UIO1 |UIO1 Bit 9 入出力
+|11 |UIO1_10 |In/Out |VDD_UIO1 |UIO1 Bit 10 入出力
+|12 |UIO1_11 |In/Out |VDD_UIO1 |UIO1 Bit 11 入出力
+|13 |UIO1_12 |In/Out |VDD_UIO1 |UIO1 Bit 12 入出力
+|14 |UIO1_13 |In/Out |VDD_UIO1 |UIO1 Bit 13 入出力
+|15 |UIO1_14 |In/Out |VDD_UIO1 |UIO1 Bit 14 入出力
+|16 |UIO1_15 |In/Out |VDD_UIO1 |UIO1 Bit 15 入出力
 |===
 
 ---
@@ -298,22 +298,22 @@ OBC上のFPGAへ接続されており、ユーザーが自由に使用できる�
 [cols="1,2,1,2,3",options="header",]
 |===
 |ピン番号 |ピン名称 |I/O |電源ドメイン |説明
-|1 |UIO2_00 |In/Out |VDD_UIO2 |UIO2 入出力
-|2 |UIO2_01 |In/Out |VDD_UIO2 |UIO2 入出力
-|3 |UIO2_02 |In/Out |VDD_UIO2 |UIO2 入出力
-|4 |UIO2_03 |In/Out |VDD_UIO2 |UIO2 入出力
-|5 |UIO2_04 |In/Out |VDD_UIO2 |UIO2 入出力
-|6 |UIO2_05 |In/Out |VDD_UIO2 |UIO2 入出力
-|7 |UIO2_06 |In/Out |VDD_UIO2 |UIO2 入出力
-|8 |UIO2_07 |In/Out |VDD_UIO2 |UIO2 入出力
-|9 |UIO2_08 |In/Out |VDD_UIO2 |UIO2 入出力
-|10 |UIO2_09 |In/Out |VDD_UIO2 |UIO2 入出力
-|11 |UIO2_10 |In/Out |VDD_UIO2 |UIO2 入出力
-|12 |UIO2_11 |In/Out |VDD_UIO2 |UIO2 入出力
-|13 |UIO2_12 |In/Out |VDD_UIO2 |UIO2 入出力
-|14 |UIO2_13 |In/Out |VDD_UIO2 |UIO2 入出力
-|15 |UIO2_14 |In/Out |VDD_UIO2 |UIO2 入出力
-|16 |UIO2_15 |In/Out |VDD_UIO2 |UIO2 入出力
+|1 |UIO2_00 |In/Out |VDD_UIO2 |UIO2 Bit 0 入出力
+|2 |UIO2_01 |In/Out |VDD_UIO2 |UIO2 Bit 1 入出力
+|3 |UIO2_02 |In/Out |VDD_UIO2 |UIO2 Bit 2 入出力
+|4 |UIO2_03 |In/Out |VDD_UIO2 |UIO2 Bit 3 入出力
+|5 |UIO2_04 |In/Out |VDD_UIO2 |UIO2 Bit 4 入出力
+|6 |UIO2_05 |In/Out |VDD_UIO2 |UIO2 Bit 5 入出力
+|7 |UIO2_06 |In/Out |VDD_UIO2 |UIO2 Bit 6 入出力
+|8 |UIO2_07 |In/Out |VDD_UIO2 |UIO2 Bit 7 入出力
+|9 |UIO2_08 |In/Out |VDD_UIO2 |UIO2 Bit 8 入出力
+|10 |UIO2_09 |In/Out |VDD_UIO2 |UIO2 Bit 9 入出力
+|11 |UIO2_10 |In/Out |VDD_UIO2 |UIO2 Bit 10 入出力
+|12 |UIO2_11 |In/Out |VDD_UIO2 |UIO2 Bit 11 入出力
+|13 |UIO2_12 |In/Out |VDD_UIO2 |UIO2 Bit 12 入出力
+|14 |UIO2_13 |In/Out |VDD_UIO2 |UIO2 Bit 13 入出力
+|15 |UIO2_14 |In/Out |VDD_UIO2 |UIO2 Bit 14 入出力
+|16 |UIO2_15 |In/Out |VDD_UIO2 |UIO2 Bit 15 入出力
 |===
 
 ---
@@ -345,18 +345,18 @@ OBCのハードウェアオプションによりUIO4に変わる信号がある�
 [cols="1,2,1,2,3",options="header",]
 |===
       |ピン番号 |ピン名称 |I/O |電源ドメイン |説明
-.2+.^|1 |UIO3_00 |In/Out |VDD_3V3_SYS |UIO3 入出力
-      |UIO4_06 |In/Out |VDD_3V3_IO |UIO4 入出力
-.2+.^|2 |UIO3_01 |In/Out |VDD_3V3_SYS |UIO3 入出力
-      |UIO4_07 |In/Out |VDD_3V3_IO |UIO4 入出力
-.2+.^|3 |UIO3_02 |In/Out |VDD_3V3_SYS |UIO3 入出力
-      |UIO4_08 |In/Out |VDD_3V3_IO |UIO4 入出力
+.2+.^|1 |UIO3_00 |In/Out |VDD_3V3_SYS |UIO3 Bit 0 入出力
+      |UIO4_06 |In/Out |VDD_3V3_IO |UIO4 Bit 6 入出力
+.2+.^|2 |UIO3_01 |In/Out |VDD_3V3_SYS |UIO3 Bit 1 入出力
+      |UIO4_07 |In/Out |VDD_3V3_IO |UIO4 Bit 7 入出力
+.2+.^|3 |UIO3_02 |In/Out |VDD_3V3_SYS |UIO3 Bit 2 入出力
+      |UIO4_08 |In/Out |VDD_3V3_IO |UIO4 Bit 8 入出力
 .2+.^|4 |TRCH_UART_TX |Output |VDD_3V3_SYS |TRCH UART TX信号
-      |UIO4_09 |In/Out |VDD_3V3_IO |UIO4 入出力
+      |UIO4_09 |In/Out |VDD_3V3_IO |UIO4 Bit 9 入出力
 .2+.^|5 |TRCH_UART_RX |Input |VDD_3V3_SYS |TRCH UART RX信号
-      |UIO4_10 |In/Out |VDD_3V3_IO |UIO4 入出力
+      |UIO4_10 |In/Out |VDD_3V3_IO |UIO4 Bit 10 入出力
 .2+.^|6 |WDOG_OUT |In/Out |VDD_3V3_SYS |Watchdog出力信号
-      |UIO4_11 |In/Out |VDD_3V3_IO |UIO4 入出力
+      |UIO4_11 |In/Out |VDD_3V3_IO |UIO4 Bit 11 入出力
 |7 |I2C_EXT_SCL |Output |VDD_3V3_SYS |External I2C クロック
 |8 |I2C_EXT_SDA |In/Out |VDD_3V3_SYS |External I2C データ信号
 |===
@@ -391,12 +391,12 @@ OBC上のFPGAへ接続されており、ユーザーが自由に使用できる�
 [cols="1,2,1,2,3",options="header",]
 |===
 |ピン番号 |ピン名称 |I/O |電源ドメイン |説明
-|1 |UIO4_00 |In/Out |VDD_3V3_IO |UIO4 入出力
-|2 |UIO4_01 |In/Out |VDD_3V3_IO |UIO4 入出力
-|3 |UIO4_02 |In/Out |VDD_3V3_IO |UIO4 入出力
-|4 |UIO4_03 |In/Out |VDD_3V3_IO |UIO4 入出力
-|5 |UIO4_04 |In/Out |VDD_3V3_IO |UIO4 入出力
-|6 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 入出力
+|1 |UIO4_00 |In/Out |VDD_3V3_IO |UIO4 Bit 0 入出力
+|2 |UIO4_01 |In/Out |VDD_3V3_IO |UIO4 Bit 1 入出力
+|3 |UIO4_02 |In/Out |VDD_3V3_IO |UIO4 Bit 2 入出力
+|4 |UIO4_03 |In/Out |VDD_3V3_IO |UIO4 Bit 3 入出力
+|5 |UIO4_04 |In/Out |VDD_3V3_IO |UIO4 Bit 4 入出力
+|6 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 Bit 5 入出力
 |===
 
 ---
