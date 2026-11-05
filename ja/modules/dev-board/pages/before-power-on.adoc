@@ -55,3 +55,8 @@ image::scobc-a1:dev-board:Connection_Diagram.svg[Connection_Diagram.svg]
 |4 |USBケーブル（Type-A - Micro-B）
 |5 |MPLAB PICkit
 |===
+
+[NOTE]
+====
+Dev BoardにMPLAB PICkitを接続する場合は、付属の両端ロングピンヘッダを使用してください。
+====

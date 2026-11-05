@@ -55,3 +55,8 @@ image::Connection_Diagram.svg[Connection_Diagram.svg]
 |4 |USB Cable (Type-A to Micro-B)
 |5 |MPLAB PICkit
 |===
+
+[NOTE]
+====
+When connecting an MPLAB PICkit to the Dev Board, use the included dual-ended long pin header.
+====
