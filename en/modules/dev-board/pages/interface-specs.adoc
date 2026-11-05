@@ -237,22 +237,22 @@ Supported Connector: SSQ-116-01-G-S (Samtec)
 [cols="1,2,1,2,3",options="header",]
 |===
 |Pin Number |Pin Name |I/O |Power Domain |Description
-|1 |UIO1_00 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|2 |UIO1_01 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|3 |UIO1_02 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|4 |UIO1_03 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|5 |UIO1_04 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|6 |UIO1_05 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|7 |UIO1_06 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|8 |UIO1_07 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|9 |UIO1_08 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|10 |UIO1_09 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|11 |UIO1_10 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|12 |UIO1_11 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|13 |UIO1_12 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|14 |UIO1_13 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|15 |UIO1_14 |In/Out |VDD_UIO1 |UIO1 Input/Output
-|16 |UIO1_15 |In/Out |VDD_UIO1 |UIO1 Input/Output
+|1 |UIO1_00 |In/Out |VDD_UIO1 |UIO1 Bit 0 Input/Output
+|2 |UIO1_01 |In/Out |VDD_UIO1 |UIO1 Bit 1 Input/Output
+|3 |UIO1_02 |In/Out |VDD_UIO1 |UIO1 Bit 2 Input/Output
+|4 |UIO1_03 |In/Out |VDD_UIO1 |UIO1 Bit 3 Input/Output
+|5 |UIO1_04 |In/Out |VDD_UIO1 |UIO1 Bit 4 Input/Output
+|6 |UIO1_05 |In/Out |VDD_UIO1 |UIO1 Bit 5 Input/Output
+|7 |UIO1_06 |In/Out |VDD_UIO1 |UIO1 Bit 6 Input/Output
+|8 |UIO1_07 |In/Out |VDD_UIO1 |UIO1 Bit 7 Input/Output
+|9 |UIO1_08 |In/Out |VDD_UIO1 |UIO1 Bit 8 Input/Output
+|10 |UIO1_09 |In/Out |VDD_UIO1 |UIO1 Bit 9 Input/Output
+|11 |UIO1_10 |In/Out |VDD_UIO1 |UIO1 Bit 10 Input/Output
+|12 |UIO1_11 |In/Out |VDD_UIO1 |UIO1 Bit 11 Input/Output
+|13 |UIO1_12 |In/Out |VDD_UIO1 |UIO1 Bit 12 Input/Output
+|14 |UIO1_13 |In/Out |VDD_UIO1 |UIO1 Bit 13 Input/Output
+|15 |UIO1_14 |In/Out |VDD_UIO1 |UIO1 Bit 14 Input/Output
+|16 |UIO1_15 |In/Out |VDD_UIO1 |UIO1 Bit 15 Input/Output
 |===
 
 ---
@@ -284,22 +284,22 @@ Supported Connector: SSQ-116-01-G-S (Samtec)
 [cols="1,2,1,2,3",options="header",]
 |===
 |Pin Number |Pin Name |I/O |Power Domain |Description
-|1 |UIO2_00 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|2 |UIO2_01 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|3 |UIO2_02 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|4 |UIO2_03 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|5 |UIO2_04 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|6 |UIO2_05 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|7 |UIO2_06 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|8 |UIO2_07 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|9 |UIO2_08 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|10 |UIO2_09 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|11 |UIO2_10 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|12 |UIO2_11 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|13 |UIO2_12 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|14 |UIO2_13 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|15 |UIO2_14 |In/Out |VDD_UIO2 |UIO2 Input/Output
-|16 |UIO2_15 |In/Out |VDD_UIO2 |UIO2 Input/Output
+|1 |UIO2_00 |In/Out |VDD_UIO2 |UIO2 Bit 0 Input/Output
+|2 |UIO2_01 |In/Out |VDD_UIO2 |UIO2 Bit 1 Input/Output
+|3 |UIO2_02 |In/Out |VDD_UIO2 |UIO2 Bit 2 Input/Output
+|4 |UIO2_03 |In/Out |VDD_UIO2 |UIO2 Bit 3 Input/Output
+|5 |UIO2_04 |In/Out |VDD_UIO2 |UIO2 Bit 4 Input/Output
+|6 |UIO2_05 |In/Out |VDD_UIO2 |UIO2 Bit 5 Input/Output
+|7 |UIO2_06 |In/Out |VDD_UIO2 |UIO2 Bit 6 Input/Output
+|8 |UIO2_07 |In/Out |VDD_UIO2 |UIO2 Bit 7 Input/Output
+|9 |UIO2_08 |In/Out |VDD_UIO2 |UIO2 Bit 8 Input/Output
+|10 |UIO2_09 |In/Out |VDD_UIO2 |UIO2 Bit 9 Input/Output
+|11 |UIO2_10 |In/Out |VDD_UIO2 |UIO2 Bit 10 Input/Output
+|12 |UIO2_11 |In/Out |VDD_UIO2 |UIO2 Bit 11 Input/Output
+|13 |UIO2_12 |In/Out |VDD_UIO2 |UIO2 Bit 12 Input/Output
+|14 |UIO2_13 |In/Out |VDD_UIO2 |UIO2 Bit 13 Input/Output
+|15 |UIO2_14 |In/Out |VDD_UIO2 |UIO2 Bit 14 Input/Output
+|16 |UIO2_15 |In/Out |VDD_UIO2 |UIO2 Bit 15 Input/Output
 |===
 
 ---
@@ -331,18 +331,18 @@ Supported Connector: SSQ-116-01-G-S (Samtec)
 [cols="1,2,1,2,3",options="header",]
 |===
       |Pin Number |Pin Name |I/O |Power Domain |Description
-.2+.^|1 |UIO3_00 |In/Out |VDD_3V3_SYS |UIO3 Input/Output
-      |UIO4_06 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-.2+.^|2 |UIO3_01 |In/Out |VDD_3V3_SYS |UIO3 Input/Output
-      |UIO4_07 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-.2+.^|3 |UIO3_02 |In/Out |VDD_3V3_SYS |UIO3 Input/Output
-      |UIO4_08 |In/Out |VDD_3V3_IO |UIO4 Input/Output
+.2+.^|1 |UIO3_00 |In/Out |VDD_3V3_SYS |UIO3 Bit 0 Input/Output
+      |UIO4_06 |In/Out |VDD_3V3_IO |UIO4 Bit 6 Input/Output
+.2+.^|2 |UIO3_01 |In/Out |VDD_3V3_SYS |UIO3 Bit 1 Input/Output
+      |UIO4_07 |In/Out |VDD_3V3_IO |UIO4 Bit 7 Input/Output
+.2+.^|3 |UIO3_02 |In/Out |VDD_3V3_SYS |UIO3 Bit 2 Input/Output
+      |UIO4_08 |In/Out |VDD_3V3_IO |UIO4 Bit 8 Input/Output
 .2+.^|4 |TRCH_UART_TX |Output |VDD_3V3_SYS |TRCH UART TX Signal
-      |UIO4_09 |In/Out |VDD_3V3_IO |UIO4 Input/Output
+      |UIO4_09 |In/Out |VDD_3V3_IO |UIO4 Bit 9 Input/Output
 .2+.^|5 |TRCH_UART_RX |Input |VDD_3V3_SYS |TRCH UART RX Signal
-      |UIO4_10 |In/Out |VDD_3V3_IO |UIO4 Input/Output
+      |UIO4_10 |In/Out |VDD_3V3_IO |UIO4 Bit 10 Input/Output
 .2+.^|6 |WDOG_OUT |In/Out |VDD_3V3_SYS |Watchdog output signal
-      |UIO4_11 |In/Out |VDD_3V3_IO |UIO4 Input/Output
+      |UIO4_11 |In/Out |VDD_3V3_IO |UIO4 Bit 11 Input/Output
 |7 |I2C_EXT_SCL |Output |VDD_3V3_SYS |External I2C Clock
 |8 |I2C_EXT_SDA |In/Out |VDD_3V3_SYS |External I2C Data Signal
 |===
@@ -376,12 +376,12 @@ Mountable Connector: SSQ-116-01-G-S (Samtec)
 [cols="1,2,1,2,3",options="header",]
 |===
 |Pin Number |Pin Name |I/O |Power Domain |Description
-|1 |UIO4_00 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-|2 |UIO4_01 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-|3 |UIO4_02 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-|4 |UIO4_03 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-|5 |UIO4_04 |In/Out |VDD_3V3_IO |UIO4 Input/Output
-|6 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 Input/Output
+|1 |UIO4_00 |In/Out |VDD_3V3_IO |UIO4 Bit 0 Input/Output
+|2 |UIO4_01 |In/Out |VDD_3V3_IO |UIO4 Bit 1 Input/Output
+|3 |UIO4_02 |In/Out |VDD_3V3_IO |UIO4 Bit 2 Input/Output
+|4 |UIO4_03 |In/Out |VDD_3V3_IO |UIO4 Bit 3 Input/Output
+|5 |UIO4_04 |In/Out |VDD_3V3_IO |UIO4 Bit 4 Input/Output
+|6 |UIO4_05 |In/Out |VDD_3V3_IO |UIO4 Bit 5 Input/Output
 |===
 
 ---
