@@ -1,1 +1,2 @@
 :sc-evb-a1001-schematic-rev1: https://downloads.spacecubics.com/products/scobc-a1/documents/SC-EVB-A1001_Schematic_Rev1.pdf
+:amd-ug908-programming-ftdi-devices: https://docs.amd.com/r/en-US/ug908-vivado-programming-debugging/Programming-FTDI-Devices-for-Vivado-Hardware-Manager-Support

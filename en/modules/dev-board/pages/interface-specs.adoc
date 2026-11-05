@@ -1,5 +1,7 @@
 = Interface Specifications
 
+include::partial$link-attributes.adoc[]
+
 The locations and specifications of each interface on the Dev Board are shown below.
 
 image::Interface_Layout.svg[Interface_Layout.svg]
@@ -154,6 +156,13 @@ The channel assignments for the FT4232H are as follows:
 
 Connecting the DEBUG interface to a PC with Vivado installed enables FPGA programming.
 Therefore, a separate Platform cable USB II is not required.
+
+[CAUTION]
+====
+Do not modify the factory-programmed data in the EEPROM connected to the FT4232H-56Q. If the EEPROM data is changed, the CON2 USB device may no longer be recognized by AMD JTAG software tools.
+
+If the CON2 USB device is no longer recognized by AMD JTAG software tools, follow link:{amd-ug908-programming-ftdi-devices}[Programming FTDI Devices for Vivado Hardware Manager Support] in the _Vivado Design Suite User Guide: Programming and Debugging (UG908)_ and use the `program_ftdi` command to reprogram the EEPROM.
+====
 
 Some of these functions require enabling/disabling via the user switch (SW1) described later.
 

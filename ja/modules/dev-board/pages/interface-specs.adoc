@@ -1,5 +1,7 @@
 = インターフェース仕様
 
+include::scobc-a1:dev-board:partial$link-attributes.adoc[]
+
 Dev Boardにおける各インターフェースの場所と仕様を以下に示します。
 
 image::scobc-a1:dev-board:Interface_Layout.svg[Interface_Layout.svg]
@@ -159,6 +161,13 @@ FT4232HのChannelの割り当ては以下の通りです。
 
 DEBUGインターフェースをVivadoがインストールされている PCに接続することでFPGAの書き込みを行うことができます。
 そのため Platform cable USB IIなどの JTAG ケーブルを別途準備していただく必要はありません。
+
+[CAUTION]
+====
+FT4232H-56Qに接続されているEEPROMのデータを、出荷時の状態から変更しないでください。EEPROMのデータを変更すると、CON2のUSBデバイスがAMD JTAGソフトウェアツールに認識されなくなる可能性があります。
+
+CON2のUSBデバイスがAMD JTAGソフトウェアツールに認識されなくなった場合は、_Vivado Design Suite User Guide: Programming and Debugging (UG908)_ の link:{amd-ug908-programming-ftdi-devices}[Programming FTDI Devices for Vivado Hardware Manager Support] に従い、`program_ftdi` コマンドでEEPROMを再設定してください。
+====
 
 Channel A (FPGA JTAG) は、 CON3 と同じ信号線 (FPGA_TMSなど) を使用するため、 CON3との同時使用はできません。
 
