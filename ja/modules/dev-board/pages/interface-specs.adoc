@@ -145,7 +145,7 @@ CON1はOBCとの接続インターフェースです。
 CON2はFPGAとTRCHのDEBUGインターフェースです。FTDI社製 FT4232H-56Qを経由し、FPGAとTRCHの各種 デバッグ機能を実現します。
 FT4232HのChannelの割り当ては以下の通りです。
 
-[width="60%",cols="1,4",options="header",]
+[width="80%",cols="1,4",options="header",]
 |===
 | Channel | Function
 | A       | FPGA JTAG (AMD製 Platform cable USB IIと同等の機能)
@@ -493,7 +493,7 @@ CON18は+5V電源の入力インターフェースで、5mmピッチ2ピンの�
 
 搭載コネクタ：TB003-500-P02BE（Same Sky）
 
-[width="50%",cols="1,1,2",options="header",]
+[width="70%",cols="1,1,2",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |GND |電源（GND）
@@ -513,7 +513,7 @@ CON19は+5V電源の入力インターフェースで、5mmピッチ2ピンの�
 
 搭載コネクタ：TB003-500-P02BE（Same Sky）
 
-[width="50%",cols="1,1,2",options="header",]
+[width="70%",cols="1,1,2",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |GND |電源（GND）
@@ -528,7 +528,7 @@ VDD_UIO1として VDD_3V3_IO や VDD_3V3_DCDC を使用せず、ユーザーが�
 
 搭載コネクタ：TB003-500-P02BE（Same Sky）
 
-[width="50%",cols="1,1,2",options="header",]
+[width="70%",cols="1,1,2",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |GND |電源（GND）
@@ -543,7 +543,7 @@ VDD_UIO2 として VDD_3V3_IO や VDD_3V3_DCDC を使用せず、ユーザーが
 
 搭載コネクタ：TB003-500-P02BE（Same Sky）
 
-[width="50%",cols="1,1,2",options="header",]
+[width="70%",cols="1,1,2",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |GND |電源（GND）
@@ -557,7 +557,7 @@ CON22は VDD_3V3_DCDC の出力インターフェースです。VDD_UIO1 およ�
 
 搭載可能コネクタ：10129378-902001BLF（Amphenol CS）
 
-[width="50%",cols="1,1,2",options="header",]
+[width="70%",cols="1,1,2",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |GND |電源（GND）
@@ -583,7 +583,7 @@ JP2はVIN_Aへの入力をCON17またはCON18へ切り替えるためのイン�
 
 搭載コネクタ：10129378-903001BLF（Amphenol CS）
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |5V |電源（CON17からの入力）
@@ -593,7 +593,7 @@ JP2はVIN_Aへの入力をCON17またはCON18へ切り替えるためのイン�
 
 image::scobc-a1:dev-board:JP2_Status.svg[JP2_Status.svg]
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |モード |ピン接続 |説明
 |Mode1 (出荷時) |1-2 |VIN_Aへの入力をCON17から供給
@@ -607,7 +607,7 @@ JP3はVIN_Bへの入力をCON17またはCON19へ切り替えるためのイン�
 
 搭載コネクタ：10129378-903001BLF（Amphenol CS）
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |ピン番号 |ピン名称 |説明
 |1 |5V |電源（CON17からの入力）
@@ -617,7 +617,7 @@ JP3はVIN_Bへの入力をCON17またはCON19へ切り替えるためのイン�
 
 image::scobc-a1:dev-board:JP3_Status.svg[JP3_Status.svg]
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |モード |ピン接続 |説明
 |Mode1 (出荷時) |1-2 |VIN_Bへの入力をCON17から供給
@@ -642,7 +642,7 @@ Dev Boardの出荷時は、ジャンパーソケットによりVDD_3V3_IOが選�
 
 image::scobc-a1:dev-board:JP4_Status.svg[JP4_Status.svg]
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |モード |ピン接続 |説明
 |Mode1 (出荷時) |1-2 |VDD_UIO1への電源をVDD_3V3_IOから供給
@@ -668,7 +668,7 @@ Dev Boardの出荷時は、ジャンパーソケットによりVDD_3V3_IOが選�
 
 image::scobc-a1:dev-board:JP5_Status.svg[JP5_Status.svg]
 
-[width="70%",cols="1,1,3",options="header",]
+[width="80%",cols="1,1,3",options="header",]
 |===
 |モード |ピン接続 |説明
 |Mode1 (出荷時) |1-2 |VDD_UIO2への電源をVDD_3V3_IOから供給
