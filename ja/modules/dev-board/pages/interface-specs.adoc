@@ -691,10 +691,14 @@ SW1はOBCと以下の回路の間の接続を制御するためのスイッチ�
 * LED11: ユーザーLED (SML-D12M8WT86)
 
 初期設定はBit 3,4のみがONで、その他のBitはOFFです。使用する回路のBitを手動で切り替えてください。 +
-手動で切り替える場合、指では操作しづらいため、ピンセットなどの先の尖った道具を使用してください。 +
 また、OBCからSW1へ繋がる信号線はUniversal Areaへも分岐しています。上記の回路に接続される信号線をUniversal Areaで使用する際はご留意ください。
 
 搭載部品：219-10MSTR（CTS Electrocomponents）
+
+[NOTE]
+====
+スイッチを切り替える場合、指では操作しづらいため、ピンセットなどの先の尖った道具を使用してください。
+====
 
 image::scobc-a1:dev-board:SW1_Status.svg[SW1_Status.svg]
 
