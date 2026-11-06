@@ -53,12 +53,6 @@ IO Boardインターフェースは、OBC Moduleと IO Boardを接続するた�
 | 38| VDD_3V3_IO| Power| -| 電源(VDD_3V3_IO)出力
 | 39| VDD_UIO1| Power| -| 電源(VDD_UIO1)
 | 40| VDD_UIO1| Power| -| 電源(VDD_UIO1)
-|====
-
-[width="100%",cols="2,3,2,3,6",options="header"]
-|====
-| ピン番号| ピン名| I/O| 電源ドメイン| 説明
-
 | 41| VDD_UIO2| Power| -| 電源(VDD_UIO2)
 | 42| VDD_UIO2| Power| -| 電源(VDD_UIO2)
 | 43| UIO4_05| Inout| VDD_3V3_IO| User IO4 Bit 5信号、FPGAの IO_0_13 (pin: U24)に接続
