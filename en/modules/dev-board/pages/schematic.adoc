@@ -31,6 +31,6 @@ intellectual property rights are not infringed.
 |SC-EVB-A1001
 |1
 |Initial Release
-|{sc-evb-a1001-schematic-rev1}[SC-EVB-A1001_Schematic_Rev1.pdf]
+|{sc-esp-00197_sc-evb-a1001_schematic}[SC-ESP-00197_SC-EVB-A1001_Schematic.pdf]
 
 |===
