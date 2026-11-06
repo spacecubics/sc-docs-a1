@@ -148,9 +148,9 @@ FPGAが提供する 32本の User IO信号が不足する場合には、使用�
 
 接続先が TRCHと FPGAで変わる事で、信号の電源ドメインも変わるため、IO Boardを設計する際は注意してください。
 
-[width="80%",cols="1,2,2,2,2",options="header"]
+[width="100%",cols="1,2,2,2,2",options="header"]
 |====
-| CON1 pin No. 
+| CON1 pin No.
 | 接続先のピン名 (TRCH選択時)
 | 接続先のピン名 (FPGA選択時)
 | ハードウェア構成 (TRCH選択時)

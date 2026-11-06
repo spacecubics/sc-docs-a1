@@ -148,7 +148,7 @@ If the 32 User IO signals provided by the FPGA are not enough, TRCH signals that
 
 Please note that the signal power domain varies depending on whether it is connected to TRCH or the FPGA, so take care when designing the IO board.
 
-[width="80%",cols="1,2,2,2,2",options="header"]
+[width="100%",cols="1,2,2,2,2",options="header"]
 |====
 | CON1 pin No.
 | Endpoint pin name when TRCH is selected
