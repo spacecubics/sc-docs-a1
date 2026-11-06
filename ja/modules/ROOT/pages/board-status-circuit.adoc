@@ -12,12 +12,12 @@ Current and Voltage Monitorの監視ノードは以下の通りです。
 |====
 | Current/Voltage Monitor No.| Target Address| Channel| Node
 
-| 1| 0x40| 1| VDD_1V0
-| | | 2| VDD_1V8
-| | | 3| VDD_3V3
-| 2| 0x41| 1| VDD_3V3_SYS_A
-| | | 2| VDD_3V3_SYS_B
-| | | 3| VDD_3V3_IO
+.3+| 1 .3+| 0x40| 1| VDD_1V0
+                | 2| VDD_1V8
+                | 3| VDD_3V3
+.3+| 2 .3+| 0x41| 1| VDD_3V3_SYS_A
+                | 2| VDD_3V3_SYS_B
+                | 3| VDD_3V3_IO
 |====
 
 Current and Voltage Monitorのアクセス方法は INA3221-Q1のデータシートを参照してください。
