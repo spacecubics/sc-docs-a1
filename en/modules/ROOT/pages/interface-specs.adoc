@@ -53,12 +53,6 @@ Refer to the Board Layout Diagram for connector locations.
 | 38 | VDD_3V3_IO | Power | - | Power supply (VDD_3V3_IO) output
 | 39 | VDD_UIO1 | Power | - | Power supply (VDD_UIO1)
 | 40 | VDD_UIO1 | Power | - | Power supply (VDD_UIO1)
-|====
-
-[width="100%",cols="2,3,2,3,6",options="header"]
-|====
-| Pin Number | Pin Name | I/O Type | Power Domain | Description
-
 | 41 | VDD_UIO2 | Power | - | Power supply (VDD_UIO2)
 | 42 | VDD_UIO2 | Power | - | Power supply (VDD_UIO2)
 | 43 | UIO4_05 | Inout | VDD_3V3_IO | User IO4 Bit 5 signal is connected to FPGA IO_0_13 (pin: U24).
